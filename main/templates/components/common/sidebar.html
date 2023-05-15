@@ -1,0 +1,180 @@
+{% load static %}
+<div :class="{ 'dark text-white-dark': $store.app.semidark }">
+    <nav x-data="sidebar" class="sidebar fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300">
+        <div class="bg-white dark:bg-[#0e1726] h-full">
+            <div class="flex justify-between items-center px-4 py-3">
+                <a href="/" class="main-logo flex items-center shrink-0">
+                    <img class="w-20 ml-[5px] flex-none" src="{% static 'assets/images/logo2.png' %}" alt="image" />
+                    <span class="text-2xl ltr:ml-1.5 rtl:mr-1.5  font-semibold  align-middle lg:inline dark:text-white-light">F:TEND</span>
+                </a>
+                <a href="javascript:;" class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180" @click="$store.app.toggleSidebar()">
+                    <svg class="w-5 h-5 m-auto" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+            </div>
+            <ul class="perfect-scrollbar relative font-semibold space-y-0.5 h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden  p-4 py-0" x-data="{ activeDropdown: null }">
+                <li class="menu nav-item">
+                    
+                   <a href="/index" class="nav-link group">
+                        <div class="flex items-center">
+                            <svg class="group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              
+                                    
+                                    <path opacity="0.5" d="M2 12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274C22 8.77128 22 9.91549 22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039Z" fill="currentColor" />
+                                    <path d="M9 17.25C8.58579 17.25 8.25 17.5858 8.25 18C8.25 18.4142 8.58579 18.75 9 18.75H15C15.4142 18.75 15.75 18.4142 15.75 18C15.75 17.5858 15.4142 17.25 15 17.25H9Z" fill="currentColor" />
+                            </svg>
+                            <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Dashboard</span>
+                        </div>
+                    </a> 
+                  
+                </li>
+
+                {% comment %} Lecturer Dropdown Menu {% endcomment %}
+                <li class="menu nav-item">
+                    <button type="button" class="nav-link group" :class="{ 'active': activeDropdown === 'lecturer' }" @click="activeDropdown === 'lecturer' ? activeDropdown = null : activeDropdown = 'lecturer'">
+                        <div class="flex items-center">
+
+                            <svg class="group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            
+                                    <path d="M15.5 7.5C15.5 9.433 13.933 11 12 11C10.067 11 8.5 9.433 8.5 7.5C8.5 5.567 10.067 4 12 4C13.933 4 15.5 5.567 15.5 7.5Z" fill="currentColor"/>
+                                    <path opacity="0.5" d="M19.5 7.5C19.5 8.88071 18.3807 10 17 10C15.6193 10 14.5 8.88071 14.5 7.5C14.5 6.11929 15.6193 5 17 5C18.3807 5 19.5 6.11929 19.5 7.5Z" fill="currentColor"/>
+                                    <path opacity="0.5" d="M4.5 7.5C4.5 8.88071 5.61929 10 7 10C8.38071 10 9.5 8.88071 9.5 7.5C9.5 6.11929 8.38071 5 7 5C5.61929 5 4.5 6.11929 4.5 7.5Z" fill="currentColor"/>
+                                    <path d="M18 16.5C18 18.433 15.3137 20 12 20C8.68629 20 6 18.433 6 16.5C6 14.567 8.68629 13 12 13C15.3137 13 18 14.567 18 16.5Z" fill="currentColor"/>
+                                    <path opacity="0.5" d="M22 16.5C22 17.8807 20.2091 19 18 19C15.7909 19 14 17.8807 14 16.5C14 15.1193 15.7909 14 18 14C20.2091 14 22 15.1193 22 16.5Z" fill="currentColor"/>
+                                    <path opacity="0.5" d="M2 16.5C2 17.8807 3.79086 19 6 19C8.20914 19 10 17.8807 10 16.5C10 15.1193 8.20914 14 6 14C3.79086 14 2 15.1193 2 16.5Z" fill="currentColor"/>
+
+                            </svg>
+
+                            <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Lecturer</span>
+                        </div>
+                        <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'lecturer' }">
+
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </button>
+                    <ul x-cloak x-show="activeDropdown === 'lecturer'" x-collapse class="sub-menu text-gray-500">
+                        <li>
+                            <a href="/">View Lecturer</a>
+                        </li>
+                        <li>
+                            <a href="/addLecturer">Add Lecturer</a>
+                        </li>
+                     
+                    </ul>
+                </li>
+                {% comment %} End of Lecturer DropDown Menu {% endcomment %}
+
+                {% comment %} Course Dropdown Menu {% endcomment %}
+                <li class="menu nav-item">
+                    <button type="button" class="nav-link group" :class="{ 'active': activeDropdown === 'course' }" @click="activeDropdown === 'course' ? activeDropdown = null : activeDropdown = 'course'">
+                        <div class="flex items-center">
+
+                            <svg class="group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M14.25 4.47954L14.25 7.5372C14.2498 7.64842 14.2496 7.80699 14.2709 7.9431C14.2969 8.10951 14.3824 8.43079 14.7151 8.62611C15.0355 8.81422 15.3488 8.74436 15.4978 8.69806C15.6276 8.6577 15.77 8.58988 15.8762 8.5393L17 8.00545L18.1238 8.5393C18.23 8.58987 18.3724 8.6577 18.5022 8.69806C18.6512 8.74436 18.9645 8.81422 19.2849 8.62611C19.6176 8.43079 19.7031 8.10952 19.7291 7.9431C19.7504 7.807 19.7502 7.64845 19.75 7.53723L19.75 3.0313C19.8628 3.026 19.9736 3.02152 20.0818 3.01775C21.1536 2.98041 21.9998 3.86075 21.9998 4.93319V16.1436C21.9998 17.2546 21.0938 18.1535 19.985 18.2228C19.0155 18.2835 17.8765 18.402 16.9998 18.6334C15.9184 18.9187 15.0106 19.7008 13.6274 20.0692C13.0013 20.236 12.3029 20.3257 12 20.3925V5.17387C12.3208 5.0953 13.3822 4.97142 13.6737 4.80275C13.8579 4.6961 14.0512 4.58732 14.25 4.47954ZM19.7276 12.8181C19.8281 13.2199 19.5837 13.6271 19.1819 13.7276L15.1819 14.7276C14.7801 14.8281 14.3729 14.5837 14.2724 14.1819C14.1719 13.7801 14.4163 13.3729 14.8181 13.2724L18.8181 12.2724C19.2199 12.1719 19.6271 12.4163 19.7276 12.8181Z" fill="currentColor"/>
+                                <path d="M18.25 3.15101C17.63 3.22431 17.0204 3.33159 16.4998 3.48744C16.2583 3.55975 16.0062 3.65141 15.75 3.7564V3.95002V6.93859L16.4993 6.58266L16.5081 6.57822C16.5571 6.55316 16.7636 6.44757 17 6.44757C17.0475 6.44757 17.0939 6.45184 17.138 6.45887C17.3131 6.48679 17.4527 6.5582 17.4919 6.57822L17.5007 6.58265L18.25 6.93859V3.64665V3.15101Z" fill="currentColor"/>
+                                <path opacity="0.5" d="M12 5.21395C11.6658 5.15047 10.9426 5.05264 10.2823 4.87544C8.9381 4.51475 8.04921 3.76429 7 3.48742C6.11349 3.25349 4.95877 3.13488 3.9824 3.07487C2.8863 3.0075 2 3.89961 2 4.99778V16.1436C2 17.2545 2.90605 18.1534 4.01486 18.2228C4.98428 18.2834 6.12329 18.402 7 18.6333C7.48596 18.7616 8.21615 19.0645 8.87295 19.3592C9.87752 19.81 10.9247 20.1556 12 20.3926V5.21395Z" fill="currentColor"/>
+                                <path d="M4.27257 12.8183C4.37303 12.4164 4.78023 12.1721 5.18208 12.2726L9.18208 13.2726C9.58393 13.373 9.82825 13.7802 9.72778 14.1821C9.62732 14.5839 9.22012 14.8282 8.81828 14.7278L4.81828 13.7278C4.41643 13.6273 4.17211 13.2201 4.27257 12.8183Z" fill="currentColor"/>
+                                <path d="M5.18208 8.27257C4.78023 8.17211 4.37303 8.41643 4.27257 8.81828C4.17211 9.22012 4.41643 9.62732 4.81828 9.72778L8.81828 10.7278C9.22012 10.8282 9.62732 10.5839 9.72778 10.1821C9.82825 9.78023 9.58393 9.37303 9.18208 9.27257L5.18208 8.27257Z" fill="currentColor"/>
+                                
+                            </svg>
+
+                            <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Course</span>
+                        </div>
+                        <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'course' }">
+
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </button>
+                    <ul x-cloak x-show="activeDropdown === 'course'" x-collapse class="sub-menu text-gray-500">
+                        <li>
+                            <a href="/">View Course</a>
+                        </li>
+                        <li>
+                            <a href="/addCourse">Add Course</a>
+                        </li>
+                     
+                    </ul>
+                </li>
+                {% comment %} End of Course DropDown Menu {% endcomment %}
+
+                {% comment %} TimeTable Dropdown Menu {% endcomment %}
+                <li class="menu nav-item">
+                    <button type="button" class="nav-link group" :class="{ 'active': activeDropdown === 'timetable' }" @click="activeDropdown === 'timetable' ? activeDropdown = null : activeDropdown = 'timetable'">
+                        <div class="flex items-center">
+
+                            <svg class="group-hover:!text-primary" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              
+                                    <path d="M6.94028 2C7.35614 2 7.69326 2.32421 7.69326 2.72414V4.18487C8.36117 4.17241 9.10983 4.17241 9.95219 4.17241H13.9681C14.8104 4.17241 15.5591 4.17241 16.227 4.18487V2.72414C16.227 2.32421 16.5641 2 16.98 2C17.3958 2 17.733 2.32421 17.733 2.72414V4.24894C19.178 4.36022 20.1267 4.63333 20.8236 5.30359C21.5206 5.97385 21.8046 6.88616 21.9203 8.27586L22 9H2.92456H2V8.27586C2.11571 6.88616 2.3997 5.97385 3.09665 5.30359C3.79361 4.63333 4.74226 4.36022 6.1873 4.24894V2.72414C6.1873 2.32421 6.52442 2 6.94028 2Z" fill="currentColor"/>
+                                    <path opacity="0.5" d="M21.9995 14.0001V12.0001C21.9995 11.161 21.9963 9.66527 21.9834 9H2.00917C1.99626 9.66527 1.99953 11.161 1.99953 12.0001V14.0001C1.99953 17.7713 1.99953 19.6569 3.1711 20.8285C4.34267 22.0001 6.22829 22.0001 9.99953 22.0001H13.9995C17.7708 22.0001 19.6564 22.0001 20.828 20.8285C21.9995 19.6569 21.9995 17.7713 21.9995 14.0001Z" fill="currentColor"/>
+                                    <path d="M18 17C18 17.5523 17.5523 18 17 18C16.4477 18 16 17.5523 16 17C16 16.4477 16.4477 16 17 16C17.5523 16 18 16.4477 18 17Z" fill="currentColor"/>
+                                    <path d="M18 13C18 13.5523 17.5523 14 17 14C16.4477 14 16 13.5523 16 13C16 12.4477 16.4477 12 17 12C17.5523 12 18 12.4477 18 13Z" fill="currentColor"/>
+                                    <path d="M13 17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17C11 16.4477 11.4477 16 12 16C12.5523 16 13 16.4477 13 17Z" fill="currentColor"/>
+                                    <path d="M13 13C13 13.5523 12.5523 14 12 14C11.4477 14 11 13.5523 11 13C11 12.4477 11.4477 12 12 12C12.5523 12 13 12.4477 13 13Z" fill="currentColor"/>
+                                    <path d="M8 17C8 17.5523 7.55228 18 7 18C6.44772 18 6 17.5523 6 17C6 16.4477 6.44772 16 7 16C7.55228 16 8 16.4477 8 17Z" fill="currentColor"/>
+                                    <path d="M8 13C8 13.5523 7.55228 14 7 14C6.44772 14 6 13.5523 6 13C6 12.4477 6.44772 12 7 12C7.55228 12 8 12.4477 8 13Z" fill="currentColor"/>
+                                  
+                                    
+                                
+                            </svg>
+
+                            <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Timetable</span>
+                        </div>
+                        <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'timetable' }">
+
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </button>
+                    <ul x-cloak x-show="activeDropdown === 'timetable'" x-collapse class="sub-menu text-gray-500">
+                        <li>
+                            <a href="/">View Timetable</a>
+                        </li>
+                        <li>
+                            <a href="/addCourse">Add Timetable</a>
+                        </li>
+                     
+                    </ul>
+                </li>
+                {% comment %} End of Course DropDown Menu {% endcomment %}
+
+               
+             
+             
+                
+              
+
+            
+            </ul>
+        </div>
+    </nav>
+</div>
+<script>
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("sidebar", () => ({
+            init() {
+                const selector = document.querySelector('.sidebar ul a[href="' + window.location
+                    .pathname + '"]');
+                if (selector) {
+                    selector.classList.add('active');
+                    const ul = selector.closest('ul.sub-menu');
+                    if (ul) {
+                        let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
+                        if (ele) {
+                            ele = ele[0];
+                            setTimeout(() => {
+                                ele.click();
+                            });
+                        }
+                    }
+                }
+            },
+        }));
+    });
+</script>
