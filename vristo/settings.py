@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'main',
     'rest_framework',
     'sslserver',
+    'django_dump_die',
     'vristo'
     
 ]
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_dump_die.middleware.DumpAndDieMiddleware',
 ]
 
 ROOT_URLCONF = 'vristo.urls'
@@ -139,3 +141,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TAILWIND_APP_NAME = 'vristoDjango'
 TAILWIND_CSS_PATH = 'assets/css/styles.css'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+AUTH_USER_MODEL = 'main.User'
+LOGIN_REDIRECT_URL = 'student-home'
+LOGIN_URL = 'login'

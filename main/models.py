@@ -1,32 +1,41 @@
 from django.db import models
 from django.forms import ModelForm
+from django.contrib.auth.models import User,AbstractUser
+
+from django.utils import timezone
+
 # Create your models here.
 
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=101)
-    first_name = models.CharField(max_length=32)
-    last_name = models.CharField(max_length=32)
-    e_mail=models.EmailField(max_length=254)
-    role = models.CharField(max_length=32, default="Student")
-    image = models.ImageField(upload_to='main/profile', name="Image")
-    student_id = models.CharField(max_length=128)
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    is_student = models.BooleanField(default=False)
+    is_lecturer = models.BooleanField(default=False)
     
+class Student(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
+    first_name=models.CharField(max_length=100)
+    last_name=models.CharField(max_length=100)
+    student_id=models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
 
-class Image(models.Model):
-    id = models.IntegerField(name='ID',unique=True,primary_key=True,editable=True)
-    image = models.ImageField(name='Image')
-    user = models.ForeignKey('User',on_delete=models.CASCADE)
+class Lecturer(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
+    first_name=models.CharField(max_length=100)
+    last_name=models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+
+class Course(models.Model):
+    course_code = models.CharField(max_length=100)
+    course_name = models.CharField(max_length=200)
+    credit_hours = models.IntegerField()
+    lecturer = models.ForeignKey(Lecturer,on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(default='default_avatar.png', upload_to='profile_images')
     
-class UserForm(ModelForm):
-    class Meta: 
-        model = User
-        exclude = ['id']
-        
-    def is_valid(self):
-        return True
+    def __str__(self):
+        return self.user.username
     
-class ImageForm(ModelForm):
-    class  Meta:
-        model = Image
-        exclude = ['id']

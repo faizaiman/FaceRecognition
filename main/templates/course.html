@@ -1,0 +1,49 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+<script src="{% static 'assets/js/simple-datatables.js' %}"></script>
+
+<div x-data="basic">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Course</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">Basic</h5>
+        <table id="myTable" class="whitespace-nowrap table-hover">
+            <thead>
+                <tr>
+                    <th>#Id</th>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Credit Hours</th>
+                    <th>Lecturer</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% comment %} {{lects}} {% endcomment %}
+                {% for course in courses %}
+                    <tr>
+                        <td>{{course.id}}</td>
+                        <td>{{course.course_code}}</td>
+                        <td>{{course.course_name}}</td>
+                        <td>{{course.credit_hours}}</td>
+                        <td>{{course.lecturer.first_name}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+{% endblock %}

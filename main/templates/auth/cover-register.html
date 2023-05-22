@@ -15,32 +15,8 @@
             <p class="mb-7">Fill the form to register</p>
             <form class="space-y-5"  method="post">
                     {% csrf_token %}
-                   
-                  {% comment %} <div>
-                    <label for="fname">First Name</label>
-                    {{form.first_name}}
-                </div>
-                <div>
-                    <label for="lname">Last Name</label>
-                    {{form.last_name}}
-                </div> {% endcomment %}
-                <div>
-                    <label for="username">Username</label>
-                    {{form.username}}
-                </div>
-                {% comment %} <div>
-                    <label for="email">Email</label>
-                    
-                </div> {% endcomment %}
-                
-                <div>
-                    <label for="password">Password</label>
-                    {{form.password1}}
-                </div> 
-                <div>
-                    <label for="password2">Confirm Password</label>
-                    {{form.password2}}
-                </div>  
+                    {{ form.as_p }}
+               
                  
                 <button type="submit" class="btn btn-primary w-full">SIGN UP</button>
             </form>

@@ -1,61 +1,85 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.db import transaction
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.forms.fields import EmailField
-from django.forms.forms import Form
+from .models import Profile
+from main.models import User, Profile,Student,Lecturer,Course
+from django.forms import ModelForm
 
-from vristo import settings
-from main.models import User
 
-class UserForm(forms.Form):
-    first_name = forms.CharField(max_length=32)
-    last_name = forms.CharField(max_length=32)
-    username = forms.CharField(max_length=101)
-    mail = forms.EmailField(max_length=254)
-    role = forms.CharField(max_length=32)
-    image = forms.ImageField(max_length=128)
-    student_id = forms.CharField(max_length=128)
 
-# class UserRegisterForm(UserCreationForm):
-#     # fields we want to include and customize in our form
-#     first_name = forms.CharField(max_length=100,
-#                                  required=True,
-#                                  widget=forms.TextInput(attrs={'placeholder': 'First Name',
-#                                                                'class': 'form-control',
-#                                                                }))
-#     last_name = forms.CharField(max_length=100,
-#                                 required=True,
-#                                 widget=forms.TextInput(attrs={'placeholder': 'Last Name',
-#                                                               'class': 'form-control',
-#                                                               }))
-#     username = forms.CharField(max_length=100,
-#                                required=True,
-#                                widget=forms.TextInput(attrs={'placeholder': 'Username',
-#                                                              'class': 'form-control',
-#                                                              }))
-#     email = forms.EmailField(required=True,
-#                              widget=forms.TextInput(attrs={'placeholder': 'Email',
-#                                                            'class': 'form-control',
-#                                                            }))
-#     password1 = forms.CharField(max_length=50,
-#                                 required=True,
-#                                 widget=forms.PasswordInput(attrs={'placeholder': 'Password',
-#                                                                   'class': 'form-control',
-#                                                                   'data-toggle': 'password',
-#                                                                   'id': 'password',
-#                                                                   }))
-#     password2 = forms.CharField(max_length=50,
-#                                 required=True,
-#                                 widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password',
-#                                                                   'class': 'form-control',
-#                                                                   'data-toggle': 'password',
-#                                                                   'id': 'password',
-#                                                                   }))
+class StudentSignUpForm(UserCreationForm):
+    email = forms.EmailField(widget=forms.EmailInput())
+    password1 = forms.CharField(widget=forms.PasswordInput())
+    password2 = forms.CharField(widget=forms.PasswordInput())
 
-#     class Meta:
-#         model = User
-#         fields = ['username','first_name', 'last_name', 'email', 'password1', 'password2']
-       
+    first_name = forms.CharField(widget=forms.TextInput())
+    last_name = forms.CharField(widget=forms.TextInput())
+    student_id =forms.CharField(widget=forms.TextInput())
+    
+    class Meta(UserCreationForm.Meta):
+        model= User
+        fields= ('username','email','password1','password2')
+    @transaction.atomic
+    def save(self,commit =True):
+        user = super().save(commit=False)
+        user.is_student = True
+        if commit:
+            user.save()
+            student = Student.objects.create(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'), student_id=self.cleaned_data.get('student_id'))
+            return user
+
+
+class LecturerSignUpForm(UserCreationForm):
+    email = forms.EmailField(widget=forms.EmailInput())
+    password1 = forms.CharField(widget=forms.PasswordInput())
+    password2 = forms.CharField(widget=forms.PasswordInput())
+
+    first_name = forms.CharField(widget=forms.TextInput())
+    last_name = forms.CharField(widget=forms.TextInput())
+    
+    class Meta(UserCreationForm.Meta):
+        model= User
+        fields= ('username','email','password1','password2')
+    @transaction.atomic
+    def save(self,commit =True):
+        user = super().save(commit=False)
+        user.is_lecturer = True
+        if commit:
+            user.save()
+            lecturer = Lecturer.objects.create(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'))
+            return user
+
+class addCourseForm(forms.ModelForm):
+    course_code = forms.CharField(widget=forms.TextInput)
+    course_name = forms.CharField(widget=forms.TextInput)
+    credit_hours = forms.IntegerField(widget=forms.TextInput)
+    lecturer_id = forms.CharField(widget=forms.TextInput)
+    class Meta:
+        model = Course
+        fields = ['course_code','course_name','credit_hours','lecturer_id']
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput())
+    password = forms.CharField(widget=forms.PasswordInput())
+
+
+class UpdateUserForm(forms.ModelForm): 
+    username = forms.CharField(max_length=100, required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
+    email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
+    class Meta: 
+        models = User
+        fields = ['username','email']
+        
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields=['username','email']
+    
+        
+class UpdateProfileForm(forms.ModelForm):
+    avatar = forms.ImageField(widget=forms.FileInput(attrs={'class':'form-control-file'}))
+    class Meta:
+        models = Profile
+        fields = ['avatar']
 
     

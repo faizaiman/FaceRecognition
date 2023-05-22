@@ -1,0 +1,64 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Lecturer</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">Basic</h5>
+            <table  class="whitespace-nowrap table-hover tlect">
+                    <thead>
+                        <tr>
+                            <th>#Id</th>
+                            <th>Username</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% comment %} {{lects}} {% endcomment %}
+                        {% for lect in lects %}
+                            <tr>
+                                <td>{{lect.lecturer.user_id}}</td>
+                                <td>{{lect.username}}</td>
+                                <td>{{lect.lecturer.first_name}}</td>
+                                <td>{{lect.lecturer.last_name}}</td>
+                                <td>{{lect.email}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+            </table>
+</div>
+
+
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        $('#tlect').DataTable({
+            sortable: false,
+            searchable: true,
+            perPage: 10,
+            perPageSelect: [10, 20, 30, 50, 100],
+        });
+       
+        
+    });
+</script>
+{% endblock javascript %}
+
+
+{% endblock content %}

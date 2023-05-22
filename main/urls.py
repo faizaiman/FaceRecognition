@@ -2,16 +2,19 @@ from django.urls import path
 from django.contrib import admin
 from . import views
 
+
 urlpatterns = [
     path('', views.auth_cover_login),
-    path('login', views.auth_cover_login),
+    path('login', views.auth_cover_login,name='login'),
     path('dj-admin',admin.site.urls),
     path('logout/', views.logout),
     path('index',views.index, name='index'),
     path('register',views.register, name='registration'),
     path('addLecturer/',views.addLecturer, name='addLecturer'),
-    path('addCourse/',views.addCourse)
-
+    path('addCourse/',views.addCourse),
+    path('profile/',views.profile,name='users-profile'),
+    path('lecturer/',views.viewLecturer),
+    path('course/',views.viewCourse)
    
     #url(r'^login/$', views.login)
     # path('auth/boxed-signin', views.auth_boxed_signin, name='auth_boxed_signin'),
