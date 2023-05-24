@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+# NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 # Application definition
 
@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
- 
     'tailwind',
     'vristoDjango',
     'main',
@@ -87,12 +86,19 @@ WSGI_APPLICATION = 'vristo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        #for windows 
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': 'percubaan',
+        # 'USER': 'root',
+        # 'PASSWORD': '',
+        # 'PORT': '3306',
+        
+        'ENGINE':'django.db.backends.postgresql_psycopg2',
         'NAME': 'percubaan',
-        'USER': 'root',
-        'PASSWORD': '',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
         'HOST': 'localhost',
-        'PORT': '3306'
+        'PORT': '5432'
     }
 }
 
