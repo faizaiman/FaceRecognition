@@ -14,7 +14,8 @@ urlpatterns = [
     path('addCourse/',views.addCourse),
     path('profile/',views.profile,name='users-profile'),
     path('lecturer/',views.viewLecturer),
-    path('course/',views.viewCourse)
+    path('course/',views.viewCourse),
+    path('course/<id>',views.editCourse,name= 'edit-course')
    
     #url(r'^login/$', views.login)
     # path('auth/boxed-signin', views.auth_boxed_signin, name='auth_boxed_signin'),
