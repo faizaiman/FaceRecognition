@@ -20,7 +20,7 @@
         <table id="myTable" class="whitespace-nowrap table-hover">
             <thead>
                 <tr>
-                    <th>#Id</th>
+                    
                     <th>Course Code</th>
                     <th>Course Name</th>
                     <th>Credit Hours</th>
@@ -33,13 +33,13 @@
                 {% comment %} {{lects}} {% endcomment %}
                 {% for course in courses %}
                     <tr>
-                        <td>{{course.id}}</td>
+                      
                         <td>{{course.course_code}}</td>
                         <td>{{course.course_name}}</td>
                         <td>{{course.credit_hours}}</td>
                         <td>{{course.lecturer.first_name}}</td>
                         <td>
-                            <a href="{% url 'edit-course' course.id%}">
+                        <a href="{% url 'edit-course' course.id%}">
                             <button type="button" class="btn btn-warning rounded-full btn-sm" >
                             
                             Edit
@@ -51,6 +51,7 @@
                             </button>
                         </a>  
                             <br>
+                            <a href="{% url 'delete-course' course.id%}">
                             <button type="button" class="btn btn-danger rounded-full btn-sm" >
                                 Delete
                                 <svg width="15" height="15" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -59,10 +60,9 @@
                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M9.42543 11.4815C9.83759 11.4381 10.2051 11.7547 10.2463 12.1885L10.7463 17.4517C10.7875 17.8855 10.4868 18.2724 10.0747 18.3158C9.66253 18.3592 9.29499 18.0426 9.25378 17.6088L8.75378 12.3456C8.71256 11.9118 9.01327 11.5249 9.42543 11.4815Z" fill="currentColor"/>
                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5747 11.4815C14.9868 11.5249 15.2875 11.9118 15.2463 12.3456L14.7463 17.6088C14.7051 18.0426 14.3376 18.3592 13.9254 18.3158C13.5133 18.2724 13.2126 17.8855 13.2538 17.4517L13.7538 12.1885C13.795 11.7547 14.1625 11.4381 14.5747 11.4815Z" fill="currentColor"/>
                                         
-
                                 </svg>
-                                    
                             </button>
+                        </a>
                     </td>
                     
                     </tr>

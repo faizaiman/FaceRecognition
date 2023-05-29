@@ -76,23 +76,6 @@ def register(request):
             
     return render(request,'auth/cover-register.html',{'form':StudentSignUpForm()})
 
-def addLecturer(request):
-    if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
-    if request.method == 'POST':
-        form = LecturerSignUpForm(request.POST)
-        
-        if form.is_valid():
-            form.save()
-         
-            return redirect(viewLecturer)
-        else:
-            print(form)
-            form = LecturerSignUpForm()
-            
-    return render(request,"addLecturer.html",{'form':LecturerSignUpForm()})
-
-
 
 def profile(request):
     if not request.user.is_authenticated:
@@ -112,14 +95,6 @@ def handle503(request, *args, **argv):
 # def index(request):
 #     return render(request, 'index.html')
 
-
-
-def viewLecturer(request):
-    if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
-    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
-    
-    return render(request,"lecturer.html",{'lects':all_lecturer})
 
 def addCourse(request):
     if not request.user.is_authenticated:
@@ -155,5 +130,67 @@ def viewCourse(request):
 
 def editCourse(request,id):
     course = get_object_or_404(Course,id=id)
-    dd(course)
-    return render(request,"editCourse.html")
+    form = addCourseForm(request.POST or None, instance=course)
+    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+
+    # dd(course)
+    if form.is_valid():
+        course.course_code = request.POST['course_code']
+        course.course_name = request.POST['course_name']
+        course.credit_hours= request.POST['credit_hours']
+        course.lecturer_id = request.POST['lecturer_id']
+        course.save()
+        return redirect(viewCourse)
+    else:
+         form = addCourseForm(request.POST or None, instance=course)
+    return render(request,"editCourse.html",{'course':course,'lects':lecturer})
+
+
+def deleteCourse(request,id):
+    course = get_object_or_404(Course,id=id)
+    course.delete()
+    return redirect(viewCourse)
+
+def addLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(auth_cover_login)
+    if request.method == 'POST':
+        form = LecturerSignUpForm(request.POST)
+        
+        if form.is_valid():
+            form.save()
+         
+            return redirect(viewLecturer)
+        else:
+            print(form)
+            form = LecturerSignUpForm()
+            
+    return render(request,"addLecturer.html",{'form':LecturerSignUpForm()})
+
+
+def viewLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(auth_cover_login)
+    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+    
+    return render(request,"lecturer.html",{'lects':all_lecturer})
+
+
+def editLecturer(request,id):
+    lecturer = get_object_or_404(Lecturer,user_id=id)
+    test = get_user_model().objects.select_related('lecturer').get(pk=id)
+    form = LecturerSignUpForm(request.POST or None, instance=test)
+   
+    if form.is_valid():
+        test.save()
+        return redirect(viewLecturer)
+    else:
+        print(form)
+        form = LecturerSignUpForm(request.POST or None, instance=test)
+
+    return render(request,"editLecturer.html",{'lect':lecturer})
+
+def deleteLecturer(request,id):
+    lecturer = get_user_model().objects.select_related('lecturer').get(pk=id)
+    lecturer.delete()
+    return redirect(viewLecturer)

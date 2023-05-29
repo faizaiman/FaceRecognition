@@ -51,9 +51,9 @@ class LecturerSignUpForm(UserCreationForm):
             return user
 
 class addCourseForm(forms.ModelForm):
-    course_code = forms.CharField(widget=forms.TextInput)
-    course_name = forms.CharField(widget=forms.TextInput)
-    credit_hours = forms.IntegerField(widget=forms.TextInput)
+    course_code = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    course_name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    credit_hours = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-input'}))
     lecturer_id = forms.CharField(widget=forms.TextInput)
     class Meta:
         model = Course

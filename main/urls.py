@@ -15,8 +15,10 @@ urlpatterns = [
     path('profile/',views.profile,name='users-profile'),
     path('lecturer/',views.viewLecturer),
     path('course/',views.viewCourse),
-    path('course/<id>',views.editCourse,name= 'edit-course')
-   
+    path('course/<id>',views.editCourse,name= 'edit-course'),
+    path('delete/<id>',views.deleteCourse,name= 'delete-course'),
+    path('lecturerE/<id>',views.editLecturer,name= 'edit-lecturer'),
+     path('deleteE/<id>',views.deleteLecturer,name= 'delete-lecturer')
     #url(r'^login/$', views.login)
     # path('auth/boxed-signin', views.auth_boxed_signin, name='auth_boxed_signin'),
 

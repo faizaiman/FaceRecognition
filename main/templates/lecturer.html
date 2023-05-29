@@ -39,7 +39,8 @@
                                 <td>{{lect.lecturer.last_name}}</td>
                                 <td>{{lect.email}}</td>
                                 <td>
-                                    
+                                    <a href="{% url 'edit-lecturer' lect.lecturer.user_id%}">
+
                                     <button type="button" class="btn btn-warning rounded-full btn-sm" >
                                     
                                     Edit
@@ -49,8 +50,11 @@
                                         </svg>    
                                      
                                     </button>
+                                </a>
                                
                                     <br>
+                                    <a href="{% url 'delete-lecturer' lect.lecturer.user_id%}">
+
                                     <button type="button" class="btn btn-danger rounded-full btn-sm" >
                                         Delete
                                         <svg width="15" height="15" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,6 +67,7 @@
                                         </svg>
                                             
                                     </button>
+                                </a>
                             </td>
                             </tr>
                         {% endfor %}
