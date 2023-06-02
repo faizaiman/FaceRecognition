@@ -6,12 +6,12 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
 from .decorators import student_required,lecturer_required
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
-from .models import Lecturer,Course
+from .models import Lecturer,Course,Student
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -34,7 +34,7 @@ def index(request):
         return redirect(auth_cover_login)
    
     return render(request,"index.html")
-
+# login auth
 def auth_cover_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -51,17 +51,20 @@ def auth_cover_login(request):
         if request.user.is_authenticated: 
             return redirect(index)
         return render(request,'auth/cover-login.html')
+# end of login auth
 
+# logout
 def logout(request):
     _logout(request)
     return redirect(auth_cover_login)
+# end of logout
 
 def page_not_found(request, *args, **argv):
     response = render(request, 'pages/error404.html')
     response.status_code =404
     return response
     
-
+# student Register
 def register(request):
     if request.method == 'POST':
         form  = StudentSignUpForm(request.POST)
@@ -75,13 +78,52 @@ def register(request):
             form = StudentSignUpForm()
             
     return render(request,'auth/cover-register.html',{'form':StudentSignUpForm()})
+#end of student register
 
-
+#view profile
 def profile(request):
     if not request.user.is_authenticated:
         return redirect(auth_cover_login)
 
-    return render(request, 'users/accountSetting.html')
+    return render(request, 'users/profile.html')
+# end of view profile
+
+# Edit Profile 
+def editProfile(request,id):
+    if not request.user.is_authenticated:
+        return redirect(auth_cover_login)
+    
+    currentUser= get_user_model().objects.get(id=id) #get login user 
+    form = editUserProfile(request.POST or None, instance=currentUser)
+
+    if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
+        getUserLecturer = get_object_or_404(Lecturer,user_id=id) #get data from table main_lecturer
+    else: #is student 
+        getUserStudent = get_object_or_404(Student,user_id=id) #get data from table main_student
+    
+    if form.is_valid(): #check if form is valid or not
+        if currentUser.is_lecturer ==True: #check if current user is lecturer or not / else current user is student
+            getUserLecturer.first_name = request.POST['first_name']
+            getUserLecturer.last_name = request.POST['last_name']
+            currentUser.save() #save to table main_user
+            getUserLecturer.save()#save to table main_lecturer
+            
+            # print(currentUser.is_lecturer ==True)
+        else: # else means current user is student
+            
+            getUserStudent.first_name = request.POST['first_name'] #get first name from form accountSetting.html
+            getUserStudent.last_name = request.POST['last_name'] #get last name from form accountSetting.html
+            currentUser.save()
+            getUserStudent.save()
+        # print(currentUser.is_student ==True)
+        return redirect(profile) 
+    else: 
+        print(form)
+        form = editUserProfile(request.POST or None, instance=currentUser)
+    
+    return render(request,'users/accountSetting.html',{'usr':currentUser})
+# End of edit profile
+    
 
 def handle500(request, *args, **argv):
     response = render(request,'pages/error500.html')
@@ -92,42 +134,42 @@ def handle503(request, *args, **argv):
     response = render(request,'pages/error503.html')
     response.status_code=503
     return response
-# def index(request):
-#     return render(request, 'index.html')
 
-
+#  add Course
 def addCourse(request):
     if not request.user.is_authenticated:
         return redirect(auth_cover_login)
     
-    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) # get user where is lecturer to be send to addCourse.html 
 
     if request.method =='POST':
         
         form = addCourseForm(request.POST)
         # print(request.POST)
         if form.is_valid():
-            course_code = request.POST['course_code']
-            course_name = request.POST['course_name']
-            credit_hours= request.POST['credit_hours']
-            lecturer_id = request.POST['lecturer_id']
+            course_code = request.POST['course_code'] #get course code from post
+            course_name = request.POST['course_name'] #get course name from post
+            credit_hours= request.POST['credit_hours'] #get credit hours from post
+            lecturer_id = request.POST['lecturer_id'] #get selected lecturer from post 
             Course(course_code=course_code,course_name=course_name,credit_hours=credit_hours,lecturer_id=lecturer_id).save()
             return redirect(viewCourse)
         else:
             form = addCourseForm()
     # dd(lecturer)
     return render(request,"addCourse.html",{'lects':lecturer,'form':addCourseForm()})
+# end of add course
 
 
-
-
+# view course
 def viewCourse(request):
     if not request.user.is_authenticated:
         return redirect(auth_cover_login)
     
-    course = Course.objects.all().select_related('lecturer')
+    course = Course.objects.all().select_related('lecturer') #call data from table course and join table main_lecturer to get lecturer name 
     return render(request,"course.html",{'courses':course})
+# end of view course
 
+# edit course
 def editCourse(request,id):
     course = get_object_or_404(Course,id=id)
     form = addCourseForm(request.POST or None, instance=course)
@@ -144,13 +186,16 @@ def editCourse(request,id):
     else:
          form = addCourseForm(request.POST or None, instance=course)
     return render(request,"editCourse.html",{'course':course,'lects':lecturer})
+# end of edit course
 
-
+# delete course
 def deleteCourse(request,id):
     course = get_object_or_404(Course,id=id)
     course.delete()
     return redirect(viewCourse)
+# end of delete course
 
+# add lecturer
 def addLecturer(request):
     if not request.user.is_authenticated:
         return redirect(auth_cover_login)
@@ -166,31 +211,41 @@ def addLecturer(request):
             form = LecturerSignUpForm()
             
     return render(request,"addLecturer.html",{'form':LecturerSignUpForm()})
+# end of add lecturer
 
-
+# view lecturer
 def viewLecturer(request):
     if not request.user.is_authenticated:
         return redirect(auth_cover_login)
-    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) #join table main_user with table main_lecturer
     
     return render(request,"lecturer.html",{'lects':all_lecturer})
+# end of view lecturer
 
-
+# edit lecturer
 def editLecturer(request,id):
-    lecturer = get_object_or_404(Lecturer,user_id=id)
-    test = get_user_model().objects.select_related('lecturer').get(pk=id)
-    form = LecturerSignUpForm(request.POST or None, instance=test)
+    if not request.user.is_authenticated:
+        return redirect(auth_cover_login)
+    lecturer = get_object_or_404(Lecturer,user_id=id) #get lecturer based on id
+    getUserLecturer = get_user_model().objects.select_related('lecturer').get(pk=id) #get user from table main_user where and join table lecturer
+    form = editUserProfile(request.POST or None, instance=getUserLecturer)
    
     if form.is_valid():
-        test.save()
+        getUserLecturer.save()
+        lecturer.first_name = request.POST['first_name']
+        lecturer.last_name = request.POST['last_name']
+        lecturer.save()
         return redirect(viewLecturer)
     else:
         print(form)
-        form = LecturerSignUpForm(request.POST or None, instance=test)
+        form = editUserProfile(request.POST or None, instance=getUserLecturer)
 
-    return render(request,"editLecturer.html",{'lect':lecturer})
+    return render(request,"editLecturer.html",{'lect':getUserLecturer})
+# end of edit lecturer
 
+# delete lecturer
 def deleteLecturer(request,id):
-    lecturer = get_user_model().objects.select_related('lecturer').get(pk=id)
+    lecturer = get_user_model().objects.select_related('lecturer').get(pk=id) #get user id from table main_user and join table main_lecturer
     lecturer.delete()
     return redirect(viewLecturer)
+# end of delete lecturer

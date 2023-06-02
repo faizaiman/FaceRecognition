@@ -8,6 +8,7 @@ urlpatterns = [
     path('login', views.auth_cover_login,name='login'),
     path('dj-admin',admin.site.urls),
     path('logout/', views.logout),
+    path('accountSetting/<id>/',views.editProfile,name= 'edit-profile'),
     path('index',views.index, name='index'),
     path('register',views.register, name='registration'),
     path('addLecturer/',views.addLecturer, name='addLecturer'),
@@ -18,7 +19,7 @@ urlpatterns = [
     path('course/<id>',views.editCourse,name= 'edit-course'),
     path('delete/<id>',views.deleteCourse,name= 'delete-course'),
     path('lecturerE/<id>',views.editLecturer,name= 'edit-lecturer'),
-     path('deleteE/<id>',views.deleteLecturer,name= 'delete-lecturer')
+    path('deleteE/<id>',views.deleteLecturer,name= 'delete-lecturer')
     #url(r'^login/$', views.login)
     # path('auth/boxed-signin', views.auth_boxed_signin, name='auth_boxed_signin'),
 

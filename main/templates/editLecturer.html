@@ -22,7 +22,7 @@
             {% csrf_token %}
             <div>
                 <label for="gridFirstName">Username</label>
-                <input name="username" id="username" type="text" placeholder="Enter Username" class="form-input" value="{{lect.user.username}}"required/>
+                <input name="username" id="username" type="text" placeholder="Enter Username" class="form-input" value="{{lect.username}}"required/>
             
                 <p class="font-weight-light text-secondary text-sm">Username must 150 characters or fewer. Letters, digits and @/./+/-/_ only</p>
                 
@@ -39,17 +39,7 @@
             </div>
             <div>
                 <label for="gridEmail">Email</label>
-                <input name="email"id="email" type="email" placeholder="Enter Email" value="{{lect.user.email}}" class="form-input" required/>
-            </div>
-            <div>
-                <label for="gridPassword">Password</label>
-                <input name="password1"id="password1" type="Password" placeholder="Enter Password" class="form-input"value="{{lect.user.password}}" required/>
-                <p class="font-weight-light text-secondary text-sm">The password cant  similar to the username</p>
-    
-            </div>
-            <div>
-                <label for="gridPassword">Confirm Password</label>
-                <input name="password2" id="password2" type="Password" placeholder="Enter Password" class="form-input" value="{{lect.user.password}}"required/>
+                <input name="email"id="email" type="email" placeholder="Enter Email" value="{{lect.email}}" class="form-input" required/>
             </div>
            
             <button type="submit" class="btn btn-primary !mt-6">Update</button>
