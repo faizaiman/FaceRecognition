@@ -4,8 +4,8 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.auth_cover_login),
-    path('login', views.auth_cover_login,name='login'),
+    path('', views.login),
+    path('login', views.login,name='login'),
     path('dj-admin',admin.site.urls),
     path('logout/', views.logout),
     path('accountSetting/<id>/',views.editProfile,name= 'edit-profile'),
