@@ -28,7 +28,7 @@
     :class="[$store.app.sidebar ? 'toggle-sidebar' : '', $store.app.theme, $store.app.menu, $store.app.layout, $store.app
         .rtlClass
     ]">
-
+   
     <!-- screen loader -->
     <div
         class="screen_loader fixed inset-0 bg-[#fafafa] dark:bg-[#060818] z-[60] grid place-content-center animate__animated">
@@ -61,7 +61,7 @@
             </button>
         </template>
     </div>
-
+    {% include 'templates/messages.html'%}
     <script>
         document.addEventListener("alpine:init", () => {
             Alpine.data("scrollToTop", () => ({
@@ -87,9 +87,11 @@
             }));
         });
     </script>
-
+    
     <div class="main-container text-black dark:text-white-dark min-h-screen">
+        
         {% block content %}
+     
         {% endblock %}
     </div>
 

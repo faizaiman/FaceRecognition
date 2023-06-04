@@ -150,3 +150,12 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 AUTH_USER_MODEL = 'main.User'
 LOGIN_REDIRECT_URL = 'student-home'
 LOGIN_URL = 'login'
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS ={
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}

@@ -107,8 +107,11 @@
 
         <div class="main-content">
             {% include 'components/common/header.html' %}
-            
+
             <div class="p-6 animate__animated" :class="[$store.app.animation]">
+                
+               
+
                {% comment %} <!-- Sucess message-->
                     {% if messages %}
                  
@@ -134,12 +137,12 @@
                         </button>
                     </div>
                 {% endif %} {% endcomment %}
-                
+                {% include 'templates/messages.html'%}
                 {% block content %}
                  
-
+                
                 {% endblock %}
-
+                
                 {% include 'components/common/footer.html' %}
             </div>
         </div>

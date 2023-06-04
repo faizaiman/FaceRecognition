@@ -57,10 +57,11 @@ def login(request):
         user = authenticate(username=username,password=password)
         if user is not None:
             _login(request ,user)
-            messages.success(request,f'You now logged isn as{username}.')
+            messages.success(request,f'You now logged as {username}.')
             return redirect(index)
             
         else:
+            messages.error(request,f'fail to login')
             return render(request,'auth/login.html')
     elif request.method =='GET':
         if request.user.is_authenticated: 
@@ -71,6 +72,7 @@ def login(request):
 # logout
 def logout(request):
     _logout(request)
+    messages.info(request,f'successful log out')
     return redirect(login)
 # end of logout
 
@@ -82,11 +84,12 @@ def register(request):
     
         if form.is_valid():
             form.save()
-           
+            messages.success(request,f'successful register')
             return redirect(login)
             
         else:
             print(form)
+            messages.error(request,f'Unsuccessful')
             form = StudentSignUpForm()
             
     return render(request,'auth/register.html',{'form':StudentSignUpForm()})
@@ -128,6 +131,7 @@ def editProfile(request,id):
             currentUser.save()
             getUserStudent.save()
         # print(currentUser.is_student ==True)
+        messages.success(request,"Successful Update Profile")
         return redirect(profile) 
     else: 
         print(form)
@@ -156,8 +160,11 @@ def addCourse(request):
             credit_hours= request.POST['credit_hours'] #get credit hours from post
             lecturer_id = request.POST['lecturer_id'] #get selected lecturer from post 
             Course(course_code=course_code,course_name=course_name,credit_hours=credit_hours,lecturer_id=lecturer_id).save()
+            messages.success(request,f'Course has been added')
             return redirect(viewCourse)
+
         else:
+            messages.warning(request,f'Fail to register course')
             form = addCourseForm()
     # dd(lecturer)
     return render(request,"course/addCourse.html",{'lects':lecturer,'form':addCourseForm()})
@@ -186,9 +193,11 @@ def editCourse(request,id):
         course.credit_hours= request.POST['credit_hours']
         course.lecturer_id = request.POST['lecturer_id']
         course.save()
+        messages.success(request,f'Course has been updated')
         return redirect(viewCourse)
     else:
-         form = addCourseForm(request.POST or None, instance=course)
+       
+        form = addCourseForm(request.POST or None, instance=course)
     return render(request,"course/editCourse.html",{'course':course,'lects':lecturer})
 # end of edit course
 
@@ -208,9 +217,10 @@ def addLecturer(request):
         
         if form.is_valid():
             form.save()
-         
+            messages.success(request,f'Success register new lecturer')
             return redirect(viewLecturer)
         else:
+            messages.error(request,f'Fail to register new lecturer')
             print(form)
             form = LecturerSignUpForm()
             
@@ -239,6 +249,8 @@ def editLecturer(request,id):
         lecturer.first_name = request.POST['first_name']
         lecturer.last_name = request.POST['last_name']
         lecturer.save()
+        messages.success(request,f'Successful update lecturer')
+
         return redirect(viewLecturer)
     else:
         print(form)
