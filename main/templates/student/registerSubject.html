@@ -1,0 +1,48 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+<div x-data="subject">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Academic</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Register Course</span>
+        </li>
+    </ul>
+</div>
+<div class="panel">
+    <h5 class="font-semibold text-lg dark:text-white-light">Course</h5>
+    <table id="tlect" class="table-hover">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Credit Hours</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+                {%for course in cours%}
+                  
+                    <tr>
+                        <td>{{course.course_code}}</td>
+                        <td>{{course.course_name}}</td>
+                        <td>{{course.credit_hours}}</td>
+                        <td> 
+                            <a href="{% url 'register-subject' course.id user.id %}">
+                                <button type="button" class="btn btn-success rounded-full btn-sm">
+                                    Register
+                                </button>
+                            </a>
+                        </td>
+                    </tr>
+
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

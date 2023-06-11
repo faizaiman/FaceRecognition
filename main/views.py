@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
-from .models import Lecturer,Course,Student
+from .models import Lecturer,Course,Student,Enrollment
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -113,9 +113,13 @@ def editProfile(request,id):
 
     if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
         getUserLecturer = get_object_or_404(Lecturer,user_id=id) #get data from table main_lecturer
-    else: #is student 
+    elif currentUser.is_student ==True: #is student 
         getUserStudent = get_object_or_404(Student,user_id=id) #get data from table main_student
-    
+    else:
+        currentUser= get_user_model().objects.get(id=id) #get admin profile
+        getUserAdmin= get_user_model().objects.get(id=id) #get login user 
+
+        
     if form.is_valid(): #check if form is valid or not
         if currentUser.is_lecturer ==True: #check if current user is lecturer or not / else current user is student
             getUserLecturer.first_name = request.POST['first_name']
@@ -124,12 +128,17 @@ def editProfile(request,id):
             getUserLecturer.save()#save to table main_lecturer
             
             # print(currentUser.is_lecturer ==True)
-        else: # else means current user is student
+        elif currentUser.is_student == True: # else means current user is student
             
             getUserStudent.first_name = request.POST['first_name'] #get first name from form accountSetting.html
             getUserStudent.last_name = request.POST['last_name'] #get last name from form accountSetting.html
             currentUser.save()
             getUserStudent.save()
+            
+        else:
+            currentUser.first_name = request.POST['first_name'] #get first name from form accountSetting.html
+            currentUser.last_name = request.POST['last_name'] #get last name from form accountSetting.html
+            currentUser.save()
         # print(currentUser.is_student ==True)
         messages.success(request,"Successful Update Profile")
         return redirect(profile) 
@@ -265,3 +274,43 @@ def deleteLecturer(request,id):
     lecturer.delete()
     return redirect(viewLecturer)
 # end of delete lecturer
+
+# view student View MySubject
+def mySubject(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    # all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) #join table main_user with table main_lecturer
+    enrollment = Enrollment.objects.select_related('course').select_related('student').filter(student_id = request.user.id)
+    # dd(request.user.id)
+    return render(request,"student/viewSubject.html",{'enn':enrollment})
+# end of student View MySubject
+
+# view student View Available Subject
+def ViewASubject(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    enrollment = Enrollment.objects.values_list('student_id',flat=True)
+    student = Student.objects.get(pk=request.user.id) #get current login student based on request.user.id
+    course = Course.objects.exclude(enrollment__student=student) #call data from table course
+    return render(request,"student/registerSubject.html",{'cours':course,'enrl':enrollment})
+# end of student View Available Subject
+
+# Student Register Subject 
+def registerSubject(request,id,uid):
+    enrollment = Enrollment() #call models enrollment
+    course = Course.objects.all().get(pk=id) #call data from table course
+    getUserStudent = get_object_or_404(Student,user_id=uid) #get data from table main_student
+    # dd(getUserStudent.user_id)
+    enrollment.course_id = course.id 
+    enrollment.student_id = getUserStudent.user_id
+    enrollment.save()
+    
+    return redirect(mySubject)
+# end of Student Register Subject 
+
+# student drop subject
+def dropSubject(request,id):
+    enroll = get_object_or_404(Enrollment,id=id)
+    enroll.delete()
+    return redirect(mySubject)
+# end of student drop subject

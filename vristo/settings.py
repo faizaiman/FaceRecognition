@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         #for windows 
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'percubaan',
+        'NAME': 'ftend',
         'USER': 'root',
         'PASSWORD': '',
         'PORT': '3306'

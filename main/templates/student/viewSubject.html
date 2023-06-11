@@ -1,0 +1,76 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+
+
+
+<div x-data="subject">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Academic</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>My Course</span>
+        </li>
+    </ul>
+</div>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">My Subject</h5>
+            <table id="tlect" class="table-hover ">
+                    <thead>
+                        <tr>
+                          
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Credit Hours</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      
+                        
+                        {% for enrollment in enn %}
+                            <tr>
+                              
+                                <td>{{enrollment.course.course_code}}</td>
+                                <td>{{enrollment.course.course_name}}</td>
+                                <td>{{enrollment.course.credit_hours}}</td>
+                                <td>
+                                    <a href="{% url 'drop-subject' enrollment.id%}">
+                                    <button type="button" class="btn btn-danger rounded-full btn-sm" >
+                                        Drop Subject
+                                    </button>
+                                </a>
+
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+            </table>
+</div>
+
+
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        $('#tlect').DataTable({
+           "searching": false
+
+            
+        });
+       
+        
+    });
+</script>
+{% endblock javascript %}
+
+
+{% endblock content %}

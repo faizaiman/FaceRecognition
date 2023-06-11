@@ -82,6 +82,8 @@ class addCourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ['course_code','course_name','credit_hours','lecturer_id']
+
+
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput())
     password = forms.CharField(widget=forms.PasswordInput())

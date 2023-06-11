@@ -3,7 +3,8 @@
 
 {% block content %}
 
-<script src="{% static 'assets/js/simple-datatables.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 <div x-data="basic">
     <ul class="flex space-x-2 rtl:space-x-reverse">
@@ -16,7 +17,7 @@
     </ul>
     <br>
     <div class="panel">
-        <h5 class="font-semibold text-lg dark:text-white-light">Basic</h5>
+        <h5 class="font-semibold text-lg dark:text-white-light">Course</h5>
         <table id="myTable" class="whitespace-nowrap table-hover">
             <thead>
                 <tr>
@@ -71,7 +72,17 @@
         </table>
     </div>
 </div>
-
+<script>
+    $(document).ready(function(){
+        $('#myTable').DataTable({
+           "searching": false
+           
+            
+        });
+       
+        
+    });
+</script>
 
 
 {% endblock %}
