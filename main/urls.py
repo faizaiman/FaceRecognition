@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib import admin
-from . import views
+from . import views, files
 
 
 urlpatterns = [
@@ -14,7 +14,12 @@ urlpatterns = [
     path('addCourse/',views.addCourse),
     path('profile/',views.profile,name='users-profile'),
     path('lecturer/',views.viewLecturer),
-    path('course/',views.viewCourse)
+    path('course/',views.viewCourse),
+    
+    path('upload',files.upload_file),
+    path('train',files.train_file, name="train"),
+    path('recognize',files.recognize, name="recognize"),
+    path('detect/<name>/',files.detect, name="detect")
    
     #url(r'^login/$', views.login)
     # path('auth/boxed-signin', views.auth_boxed_signin, name='auth_boxed_signin'),

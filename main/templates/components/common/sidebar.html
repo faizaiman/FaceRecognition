@@ -169,9 +169,15 @@
                                   
                                     
                              </svg>
-                             <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Train Images</span>
-                         </div>
-                     </a> 
+
+                                {% comment %} <a href="/upload"> {% endcomment %}
+                                
+                            
+                             {% comment %} <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">Upload Test</span> {% endcomment %}
+                            {% comment %} </a> {% endcomment %}
+                            </div>
+                     </a>
+                     <button type="submit" onclick="location.href='{% url 'train' %}'" name='uploadbtn'>Upload</button>
                  </li>
                  {% endif%}
 
@@ -249,4 +255,8 @@
             },
         }));
     });
+
+    function upload(){
+        console.log("UPLOAD")
+    }
 </script>
