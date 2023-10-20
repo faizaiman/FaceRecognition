@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib import admin
-from . import views
+from . import views,files
 
 
 urlpatterns = [
@@ -23,7 +23,16 @@ urlpatterns = [
     path('MySubject/',views.mySubject),
     path('viewSubject/',views.ViewASubject),
     path('registerSubject/(?P<id>\d+)(?:/(?P<uid>\d+))?',views.registerSubject,name= 'register-subject'),
-    path('dropSubject/(?P<id>\d+)',views.dropSubject,name= 'drop-subject')
+    path('dropSubject/(?P<id>\d+)',views.dropSubject,name= 'drop-subject'),
+    
+    path('upload',files.upload_file),
+    path('train',files.train_file,name="train"),
+    path('recognize',files.recognize,name ="recognize"),
+    path('detect/<name>/',files.detect,name="detect"),
+
+
+
+    
 
     
 ]
