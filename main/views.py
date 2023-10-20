@@ -6,12 +6,12 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
 from .decorators import student_required,lecturer_required
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
-from .models import Lecturer,Course
+from .models import Lecturer,Course,Student,Enrollment
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -26,435 +26,291 @@ import datetime
 from json import loads
 from _thread import start_new_thread
 
+# def handle500(request, *args, **argv):
+#     response = render(request,'pages/error500.html')
+#     response.status_code=500
+#     return response
 
+# def handle503(request, *args, **argv):
+#     response = render(request,'pages/error503.html')
+#     response.status_code=503
+#     return response
+
+
+# def page_not_found(request, *args, **argv):
+#     response = render(request, 'pages/error404.html')
+#     response.status_code =404
+#     return response
+    
 # Create your views here.
 User = get_user_model
 def index(request):
     if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
+        return redirect(login)
    
     return render(request,"index.html")
-
-def auth_cover_login(request):
+# login auth
+def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username=username,password=password)
         if user is not None:
             _login(request ,user)
-            messages.success(request,f'You now logged isn as{username}.')
+            messages.success(request,f'You now logged as {username}.')
             return redirect(index)
             
         else:
-            return render(request,'auth/cover-login.html')
+            messages.error(request,f'fail to login')
+            return render(request,'auth/login.html')
     elif request.method =='GET':
         if request.user.is_authenticated: 
             return redirect(index)
-        return render(request,'auth/cover-login.html')
+        return render(request,'auth/login.html')
+# end of login auth
 
+# logout
 def logout(request):
     _logout(request)
-    return redirect(auth_cover_login)
+    messages.info(request,f'successful log out')
+    return redirect(login)
+# end of logout
 
-def page_not_found(request, *args, **argv):
-    response = render(request, 'pages/error404.html')
-    response.status_code =404
-    return response
-    
-
+# student Register
 def register(request):
+    
     if request.method == 'POST':
         form  = StudentSignUpForm(request.POST)
-        print(form)
+    
         if form.is_valid():
             form.save()
-           
-            return redirect(auth_cover_login)
+            messages.success(request,f'successful register')
+            return redirect(login)
             
-        else:
-            form = StudentSignUpForm()
-            
-    return render(request,'auth/cover-register.html',{'form':StudentSignUpForm()})
-
-def addLecturer(request):
-    if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
-    if request.method == 'POST':
-        form = LecturerSignUpForm(request.POST)
-        
-        if form.is_valid():
-            form.save()
-         
-            return redirect(viewLecturer)
         else:
             print(form)
-            form = LecturerSignUpForm()
+            messages.error(request,f'Unsuccessful')
+            form = StudentSignUpForm()
             
-    return render(request,"addLecturer.html",{'form':LecturerSignUpForm()})
+    return render(request,'auth/register.html',{'form':StudentSignUpForm()})
+#end of student register
 
-
-
+#view profile
 def profile(request):
     if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
+        return redirect(login)
 
-    return render(request, 'users/accountSetting.html')
+    return render(request, 'users/profile.html')
+# end of view profile
 
-def handle500(request, *args, **argv):
-    response = render(request,'pages/error500.html')
-    response.status_code=500
-    return response
-
-def handle503(request, *args, **argv):
-    response = render(request,'pages/error503.html')
-    response.status_code=503
-    return response
-# def index(request):
-#     return render(request, 'index.html')
-
-
-
-def viewLecturer(request):
+# Edit Profile 
+def editProfile(request,id):
     if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
-    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+        return redirect(login)
     
-    return render(request,"lecturer.html",{'lects':all_lecturer})
+    currentUser= get_user_model().objects.get(id=id) #get login user 
+    form = editUserProfile(request.POST or None, instance=currentUser)
 
+    if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
+        getUserLecturer = get_object_or_404(Lecturer,user_id=id) #get data from table main_lecturer
+    elif currentUser.is_student ==True: #is student 
+        getUserStudent = get_object_or_404(Student,user_id=id) #get data from table main_student
+    else:
+        currentUser= get_user_model().objects.get(id=id) #get admin profile
+        getUserAdmin= get_user_model().objects.get(id=id) #get login user 
+
+        
+    if form.is_valid(): #check if form is valid or not
+        if currentUser.is_lecturer ==True: #check if current user is lecturer or not / else current user is student
+            getUserLecturer.first_name = request.POST['first_name']
+            getUserLecturer.last_name = request.POST['last_name']
+            currentUser.save() #save to table main_user
+            getUserLecturer.save()#save to table main_lecturer
+            
+            # print(currentUser.is_lecturer ==True)
+        elif currentUser.is_student == True: # else means current user is student
+            
+            getUserStudent.first_name = request.POST['first_name'] #get first name from form accountSetting.html
+            getUserStudent.last_name = request.POST['last_name'] #get last name from form accountSetting.html
+            currentUser.save()
+            getUserStudent.save()
+            
+        else:
+            currentUser.first_name = request.POST['first_name'] #get first name from form accountSetting.html
+            currentUser.last_name = request.POST['last_name'] #get last name from form accountSetting.html
+            currentUser.save()
+        # print(currentUser.is_student ==True)
+        messages.success(request,"Successful Update Profile")
+        return redirect(profile) 
+    else: 
+        print(form)
+        form = editUserProfile(request.POST or None, instance=currentUser)
+    
+    return render(request,'users/accountSetting.html',{'usr':currentUser})
+# End of edit profile
+    
+
+
+
+#  add Course
 def addCourse(request):
     if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
+        return redirect(login)
     
-    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) # get user where is lecturer to be send to addCourse.html 
 
     if request.method =='POST':
         
         form = addCourseForm(request.POST)
         # print(request.POST)
         if form.is_valid():
-            course_code = request.POST['course_code']
-            course_name = request.POST['course_name']
-            credit_hours= request.POST['credit_hours']
-            lecturer_id = request.POST['lecturer_id']
+            course_code = request.POST['course_code'] #get course code from post
+            course_name = request.POST['course_name'] #get course name from post
+            credit_hours= request.POST['credit_hours'] #get credit hours from post
+            lecturer_id = request.POST['lecturer_id'] #get selected lecturer from post 
             Course(course_code=course_code,course_name=course_name,credit_hours=credit_hours,lecturer_id=lecturer_id).save()
+            messages.success(request,f'Course has been added')
             return redirect(viewCourse)
+
         else:
+            messages.warning(request,f'Fail to register course')
             form = addCourseForm()
     # dd(lecturer)
-    return render(request,"addCourse.html",{'lects':lecturer,'form':addCourseForm()})
+    return render(request,"course/addCourse.html",{'lects':lecturer,'form':addCourseForm()})
+# end of add course
 
 
-
-
+# view course
 def viewCourse(request):
     if not request.user.is_authenticated:
-        return redirect(auth_cover_login)
+        return redirect(login)
     
-    course = Course.objects.all().select_related('lecturer')
-    return render(request,"course.html",{'courses':course})
-
-
-
-def analytics(request):
-    return render(request, 'analytics.html')
-
-def finance(request):
-    return render(request, 'finance.html')
-
-def crypto(request):
-    return render(request, 'crypto.html')
-
-
-def charts(request):
-    return render(request, 'charts.html')
-
-def widgets(request):
-    return render(request, 'widgets.html')
-
-def font_icons(request):
-    return render(request, 'font-icons.html')
-
-def dragndrop(request):
-    return render(request, 'dragndrop.html')
-
-def tables(request):
-    return render(request, 'tables.html')
-
-
-def apps_chat(request):
-    return render(request, 'apps/chat.html')
-
-def apps_mailbox(request):
-    return render(request, 'apps/mailbox.html')
-
-def apps_todolist(request):
-    return render(request, 'apps/todolist.html')
-
-def apps_notes(request):
-    return render(request, 'apps/notes.html')
-
-def apps_scrumboard(request):
-    return render(request, 'apps/scrumboard.html')
-
-def apps_contacts(request):
-    return render(request, 'apps/contacts.html')
-
-def apps_calendar(request):
-    return render(request, 'apps/calendar.html')
-
-def apps_invoice_add(request):
-    return render(request, 'apps/invoice/add.html')
-
-def apps_invoice_edit(request):
-    return render(request, 'apps/invoice/edit.html')
-
-def apps_invoice_list(request):
-    return render(request, 'apps/invoice/list.html')
-
-def apps_invoice_preview(request):
-    return render(request, 'apps/invoice/preview.html')
-
-
-def components_tabs(request):
-    return render(request, 'ui-components/tabs.html')
-
-def components_accordions(request):
-    return render(request, 'ui-components/accordions.html')
-
-def components_modals(request):
-    return render(request, 'ui-components/modals.html')
-
-def components_cards(request):
-    return render(request, 'ui-components/cards.html')
-
-def components_carousel(request):
-    return render(request, 'ui-components/carousel.html')
-
-def components_countdown(request):
-    return render(request, 'ui-components/countdown.html')
-
-def components_counter(request):
-    return render(request, 'ui-components/counter.html')
-
-def components_sweetalert(request):
-    return render(request, 'ui-components/sweetalert.html')
-
-def components_timeline(request):
-    return render(request, 'ui-components/timeline.html')
-
-def components_notifications(request):
-    return render(request, 'ui-components/notifications.html')
-
-def components_media_object(request):
-    return render(request, 'ui-components/media-object.html')
-
-def components_list_group(request):
-    return render(request, 'ui-components/list-group.html')
-
-def components_pricing_table(request):
-    return render(request, 'ui-components/pricing-table.html')
-
-def components_lightbox(request):
-    return render(request, 'ui-components/lightbox.html')
-
-
-
-def elements_alerts(request):
-    return render(request, 'elements/alerts.html')
-
-def elements_avatar(request):
-    return render(request, 'elements/avatar.html')
-
-def elements_badges(request):
-    return render(request, 'elements/badges.html')
-
-def elements_breadcrumbs(request):
-    return render(request, 'elements/breadcrumbs.html')
-
-def elements_buttons(request):
-    return render(request, 'elements/buttons.html')
-
-def elements_buttons_group(request):
-    return render(request, 'elements/buttons-group.html')
-
-def elements_color_library(request):
-    return render(request, 'elements/color-library.html')
-
-def elements_dropdown(request):
-    return render(request, 'elements/dropdown.html')
-
-def elements_infobox(request):
-    return render(request, 'elements/infobox.html')
-
-def elements_jumbotron(request):
-    return render(request, 'elements/jumbotron.html')
-
-def elements_loader(request):
-    return render(request, 'elements/loader.html')
-
-def elements_pagination(request):
-    return render(request, 'elements/pagination.html')
-
-def elements_popovers(request):
-    return render(request, 'elements/popovers.html')
-
-def elements_progress_bar(request):
-    return render(request, 'elements/progress-bar.html')
-
-def elements_search(request):
-    return render(request, 'elements/search.html')
-
-def elements_tooltips(request):
-    return render(request, 'elements/tooltips.html')
-
-def elements_treeview(request):
-    return render(request, 'elements/treeview.html')
-
-def elements_typography(request):
-    return render(request, 'elements/typography.html')
-
-
-def datatables_advanced(request):
-    return render(request, 'datatables/advanced.html')
-
-def datatables_alt_pagination(request):
-    return render(request, 'datatables/alt-pagination.html')
-
-def datatables_basic(request):
-    return render(request, 'datatables/basic.html')
-
-def datatables_order_sorting(request):
-    return render(request, 'datatables/order-sorting.html')
-
-def datatables_multi_column(request):
-    return render(request, 'datatables/multi-column.html')
-
-def datatables_multiple_tables(request):
-    return render(request, 'datatables/multiple-tables.html')
-
-def datatables_checkbox(request):
-    return render(request, 'datatables/checkbox.html')
-
-def datatables_clone_header(request):
-    return render(request, 'datatables/clone-header.html')
-
-def datatables_column_chooser(request):
-    return render(request, 'datatables/column-chooser.html')
-
-def datatables_range_search(request):
-    return render(request, 'datatables/range-search.html')
-
-def datatables_export(request):
-    return render(request, 'datatables/export.html')
-
-def datatables_skin(request):
-    return render(request, 'datatables/skin.html')
-
-def datatables_sticky_header(request):
-    return render(request, 'datatables/sticky-header.html')
-
-
-def forms_basic(request):
-    return render(request, 'forms/basic.html')
-
-def forms_input_group(request):
-    return render(request, 'forms/input-group.html')
-
-def forms_layouts(request):
-    return render(request, 'forms/layouts.html')
-
-def forms_validation(request):
-    return render(request, 'forms/validation.html')
-
-def forms_input_mask(request):
-    return render(request, 'forms/input-mask.html')
-
-def forms_select2(request):
-    return render(request, 'forms/select2.html')
-
-def forms_touchspin(request):
-    return render(request, 'forms/touchspin.html')
-
-def forms_checkbox_radio(request):
-    return render(request, 'forms/checkbox-radio.html')
-
-def forms_switches(request):
-    return render(request, 'forms/switches.html')
-
-def forms_wizards(request):
-    return render(request, 'forms/wizards.html')
-
-def forms_file_upload(request):
-    return render(request, 'forms/file-upload.html')
-
-def forms_quill_editor(request):
-    return render(request, 'forms/quill-editor.html')
-
-def forms_markdown_editor(request):
-    return render(request, 'forms/markdown-editor.html')
-
-def forms_date_picker(request):
-    return render(request, 'forms/date-picker.html')
-
-def forms_clipboard(request):
-    return render(request, 'forms/clipboard.html')
-
-
+    course = Course.objects.all().select_related('lecturer') #call data from table course and join table main_lecturer to get lecturer name 
+    return render(request,"course/course.html",{'courses':course})
+# end of view course
+
+# edit course
+def editCourse(request,id):
+    course = get_object_or_404(Course,id=id)
+    form = addCourseForm(request.POST or None, instance=course)
+    lecturer=get_user_model().objects.select_related('lecturer').filter(is_lecturer=True)
+
+    # dd(course)
+    if form.is_valid():
+        course.course_code = request.POST['course_code']
+        course.course_name = request.POST['course_name']
+        course.credit_hours= request.POST['credit_hours']
+        course.lecturer_id = request.POST['lecturer_id']
+        course.save()
+        messages.success(request,f'Course has been updated')
+        return redirect(viewCourse)
+    else:
+       
+        form = addCourseForm(request.POST or None, instance=course)
+    return render(request,"course/editCourse.html",{'course':course,'lects':lecturer})
+# end of edit course
+
+# delete course
+def deleteCourse(request,id):
+    course = get_object_or_404(Course,id=id)
+    course.delete()
+    return redirect(viewCourse)
+# end of delete course
+
+# add lecturer
+def addLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST':
+        form = LecturerSignUpForm(request.POST)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request,f'Success register new lecturer')
+            return redirect(viewLecturer)
+        else:
+            messages.error(request,f'Fail to register new lecturer')
+            print(form)
+            form = LecturerSignUpForm()
+            
+    return render(request,"lecturer/addLecturer.html",{'form':LecturerSignUpForm()})
+# end of add lecturer
+
+# view lecturer
+def viewLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) #join table main_user with table main_lecturer
     
-def pages_knowledge_base(request):
-    return render(request, 'pages/knowledge-base.html')
+    return render(request,"lecturer/lecturer.html",{'lects':all_lecturer})
+# end of view lecturer
 
-def pages_faq(request):
-    return render(request, 'pages/faq.html')
+# edit lecturer
+def editLecturer(request,id):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    lecturer = get_object_or_404(Lecturer,user_id=id) #get lecturer based on id
+    getUserLecturer = get_user_model().objects.select_related('lecturer').get(pk=id) #get user from table main_user where and join table lecturer
+    form = editUserProfile(request.POST or None, instance=getUserLecturer)
+   
+    if form.is_valid():
+        getUserLecturer.save()
+        lecturer.first_name = request.POST['first_name']
+        lecturer.last_name = request.POST['last_name']
+        lecturer.save()
+        messages.success(request,f'Successful update lecturer')
 
-def pages_contact_us(request):
-    return render(request, 'pages/contact-us.html')
+        return redirect(viewLecturer)
+    else:
+        print(form)
+        form = editUserProfile(request.POST or None, instance=getUserLecturer)
 
-def pages_coming_soon(request):
-    return render(request, 'pages/coming-soon.html')
+    return render(request,"lecturer/editLecturer.html",{'lect':getUserLecturer})
+# end of edit lecturer
 
-def pages_error404(request):
-    return render(request, 'pages/error404.html')
+# delete lecturer
+def deleteLecturer(request,id):
+    lecturer = get_user_model().objects.select_related('lecturer').get(pk=id) #get user id from table main_user and join table main_lecturer
+    lecturer.delete()
+    return redirect(viewLecturer)
+# end of delete lecturer
 
-def pages_error500(request):
-    return render(request, 'pages/error500.html')
+# view student View MySubject
+def mySubject(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    # all_lecturer = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True) #join table main_user with table main_lecturer
+    enrollment = Enrollment.objects.select_related('course').select_related('student').filter(student_id = request.user.id)
+    # dd(request.user.id)
+    return render(request,"student/viewSubject.html",{'enn':enrollment})
+# end of student View MySubject
 
-def pages_error503(request):
-    return render(request, 'pages/error503.html')
+# view student View Available Subject
+def ViewASubject(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    enrollment = Enrollment.objects.values_list('student_id',flat=True)
+    student = Student.objects.get(pk=request.user.id) #get current login student based on request.user.id
+    course = Course.objects.exclude(enrollment__student=student) #call data from table course
+    return render(request,"student/registerSubject.html",{'cours':course,'enrl':enrollment})
+# end of student View Available Subject
 
-def pages_maintenence(request):
-    return render(request, 'pages/maintenence.html')
+# Student Register Subject 
+def registerSubject(request,id,uid):
+    enrollment = Enrollment() #call models enrollment
+    course = Course.objects.all().get(pk=id) #call data from table course
+    getUserStudent = get_object_or_404(Student,user_id=uid) #get data from table main_student
+    # dd(getUserStudent.user_id)
+    enrollment.course_id = course.id 
+    enrollment.student_id = getUserStudent.user_id
+    enrollment.save()
+    
+    return redirect(mySubject)
+# end of Student Register Subject 
 
-
-
-def users_profile(request):
-    return render(request, 'users/profile.html')
-
-def users_user_account_settings(request):
-    return render(request, 'users/user-account-settings.html')
-
-
-
-def auth_boxed_signin(request):
-    return render(request, 'auth/boxed-signin.html')
-
-def auth_boxed_signup(request):
-    return render(request, 'auth/boxed-signup.html')
-
-def auth_boxed_lockscreen(request):
-    return render(request, 'auth/boxed-lockscreen.html')
-
-def auth_boxed_password_reset(request):
-    return render(request, 'auth/boxed-password-reset.html')
-
-# def auth_cover_login(request):
-#     return render(request, 'auth/cover-login.html')
-
-def auth_cover_register(request):
-    return render(request, 'auth/cover-register.html')
-
-def auth_cover_lockscreen(request):
-    return render(request, 'auth/cover-lockscreen.html')
-
-def auth_cover_password_reset(request):
-    return render(request, 'auth/cover-password-reset.html')
+# student drop subject
+def dropSubject(request,id):
+    enroll = get_object_or_404(Enrollment,id=id)
+    enroll.delete()
+    return redirect(mySubject)
+# end of student drop subject

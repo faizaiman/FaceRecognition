@@ -1,0 +1,51 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+<div x-data="sales">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Edit Course</span>
+        </li>
+    </ul>
+
+</div>
+<div class="panel">
+    <form class="space-y-5" method='POST' id="form">
+       
+        {% csrf_token %}
+
+        <div>
+            <label for="gridCourseCode">Course Code</label>
+            <input name="course_code" id="course_code" type="text" placeholder="Enter Course Code" value="{{course.course_code}}" class="form-input"required/>          
+        </div>
+        <div>
+            <label for="gridCourseName">Course Name</label>
+            <input name="course_name" id="course_name" type="text" placeholder="Enter Course Name" value="{{course.course_name}}"class="form-input" required/>
+        </div>
+        <div>
+            <label for="gridCreditHours">Credit Hours</label>
+            <input name="credit_hours" id="credit_hours" type="text" placeholder="Enter Credit Hours" value="{{course.credit_hours}}" class="form-input" required/>
+            
+        </div>
+        <div>
+          
+            <label for="gridLecturerId" name="lecturer_id" id="lecturer_id">Lecturer</label>
+            <select name="lecturer_id" id="lecturer_id" class="form-select text-white-dark" >
+                <option>Select Lecturer</option>
+                
+                {% for lect in lects %}
+                <option value="{{ lect.id }}"{% if lect.id == course.lecturer_id %} selected="selected"{% endif %}>{{ lect.username }}</option>
+                {% comment %} <option value="{{lect.id}}"{% if lect.id == course.id%}>{{lect.username}}</option> {% endcomment %}
+                {%endfor%}
+            </select>
+        </div>
+       
+        <button type="submit" class="btn btn-primary !mt-6">Update</button>
+    </form>
+        </div>
+{% endblock %}

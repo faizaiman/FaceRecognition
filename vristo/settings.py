@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+# NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 # Application definition
 
@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
- 
     'tailwind',
     'vristoDjango',
     'main',
@@ -87,27 +86,12 @@ WSGI_APPLICATION = 'vristo.wsgi.application'
 DATABASES = {
     'default': {
 <<<<<<< Updated upstream
+        #for windows 
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'percubaan',
+        'NAME': 'ftend',
         'USER': 'root',
         'PASSWORD': '',
-        'HOST': 'localhost',
         'PORT': '3306'
-=======
-        #for windows 
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'ftend',
-        # 'USER': 'root',
-        # 'PASSWORD': '',
-        # 'PORT': '3306'
-        
-        'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ftend',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '5432'
->>>>>>> Stashed changes
     }
 }
 
@@ -159,3 +143,12 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 AUTH_USER_MODEL = 'main.User'
 LOGIN_REDIRECT_URL = 'student-home'
 LOGIN_URL = 'login'
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS ={
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}

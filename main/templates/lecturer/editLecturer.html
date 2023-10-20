@@ -1,0 +1,52 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Edit Lecturer</span>
+        </li>
+    </ul>
+
+
+    <div class="panel">
+        <form class="space-y-5" method='POST' id="form">
+            <!-- Error -->
+
+            <!-- end of Error-->
+            {% csrf_token %}
+            <div>
+                <label for="gridFirstName">Username</label>
+                <input name="username" id="username" type="text" placeholder="Enter Username" class="form-input" value="{{lect.username}}"required/>
+            
+                <p class="font-weight-light text-secondary text-sm">Username must 150 characters or fewer. Letters, digits and @/./+/-/_ only</p>
+                
+            </div>
+            <div>
+                <label for="gridFirstName">First Name</label>
+                <input name="first_name" id="first_name" type="text" placeholder="Enter First Name" value="{{lect.first_name}}"class="form-input" required/>
+            </div>
+            <div>
+                <label for="gridLastName">Last Name</label>
+                <input name="last_name" id="last_name" type="text" placeholder="Enter Last Name" value="{{lect.last_name}}"class="form-input" required/>
+                
+
+            </div>
+            <div>
+                <label for="gridEmail">Email</label>
+                <input name="email"id="email" type="email" placeholder="Enter Email" value="{{lect.email}}" class="form-input" required/>
+            </div>
+           
+            <button type="submit" class="btn btn-primary !mt-6">Update</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+
+{% endblock javascript %}

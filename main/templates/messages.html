@@ -1,0 +1,31 @@
+{% load static %}
+<link defer rel='stylesheet' type='text/css'  href="{% static 'assets/css/toast.css' %}" />
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+{% if messages%}
+    {%  for message in messages%}
+  
+    <script>
+            Swal.fire({
+                iconColor: 'white',
+                title: '{{message}}',
+                position: 'top',
+                toast:true,
+                showConfirmButton: false,
+                timer: 2000,
+                showCloseButton: true,
+                animation: true,
+                timerProgressBar: true,
+                icon: '{{message.tags}}',
+                customClass: {
+                    popup: 'colored-toast'
+                  },
+               
+            });
+    </script>
+ 
+    {% endfor %}
+{%endif%}

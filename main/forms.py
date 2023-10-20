@@ -1,6 +1,6 @@
 from django import forms
 from django.db import transaction
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
 from main.models import User, Profile,Student,Lecturer,Course
@@ -19,7 +19,7 @@ class StudentSignUpForm(UserCreationForm):
     
     class Meta(UserCreationForm.Meta):
         model= User
-        fields= ('username','email','password1','password2')
+        fields= ('username','email','password1','password2','first_name','last_name')
     @transaction.atomic
     def save(self,commit =True):
         user = super().save(commit=False)
@@ -40,7 +40,7 @@ class LecturerSignUpForm(UserCreationForm):
     
     class Meta(UserCreationForm.Meta):
         model= User
-        fields= ('username','email','password1','password2')
+        fields= ('username','email','password1','password2','first_name','last_name')
     @transaction.atomic
     def save(self,commit =True):
         user = super().save(commit=False)
@@ -50,25 +50,51 @@ class LecturerSignUpForm(UserCreationForm):
             lecturer = Lecturer.objects.create(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'))
             return user
 
+class editUserProfile(forms.ModelForm):
+    first_name = forms.CharField(widget=forms.TextInput())
+    last_name = forms.CharField(widget=forms.TextInput())
+    email= forms.EmailField(widget=forms.EmailInput())
+    username = forms.CharField(widget=forms.TextInput())
+    class Meta:
+        model = User
+        fields= ['username','first_name','last_name','email']
+    @transaction.atomic
+    def save(self,commit = True):
+        user = super().save(commit=False)
+        if user.is_lecturer == True:
+            if commit:
+                user.save()
+                lecturer = Lecturer.objects.update(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'))
+
+        if user.is_student ==True:
+             if commit:
+                user.save()
+                student = Student.objects.update(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'), student_id=self.cleaned_data.get('student_id'))
+
+        return user
+            
+
 class addCourseForm(forms.ModelForm):
-    course_code = forms.CharField(widget=forms.TextInput)
-    course_name = forms.CharField(widget=forms.TextInput)
-    credit_hours = forms.IntegerField(widget=forms.TextInput)
+    course_code = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    course_name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    credit_hours = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-input'}))
     lecturer_id = forms.CharField(widget=forms.TextInput)
     class Meta:
         model = Course
         fields = ['course_code','course_name','credit_hours','lecturer_id']
+
+
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput())
     password = forms.CharField(widget=forms.PasswordInput())
 
 
-class UpdateUserForm(forms.ModelForm): 
-    username = forms.CharField(max_length=100, required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
-    email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
-    class Meta: 
-        models = User
-        fields = ['username','email']
+# class UpdateUserForm(forms.ModelForm): 
+#     username = forms.CharField(max_length=100, required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
+#     email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
+#     class Meta: 
+#         models = User
+#         fields = ['username','email']
         
 class UserUpdateForm(forms.ModelForm):
     class Meta:

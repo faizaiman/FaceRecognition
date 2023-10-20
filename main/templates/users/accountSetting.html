@@ -31,7 +31,7 @@
             </ul>
             <template x-if="tab === 'home'">
                 <div>
-                    <form class="border border-[#ebedf2] dark:border-[#191e3a] rounded-md p-4 mb-5 bg-white dark:bg-[#0e1726]" method="POST" action="">
+                    <form class="border border-[#ebedf2] dark:border-[#191e3a] rounded-md p-4 mb-5 bg-white dark:bg-[#0e1726]" method="POST" >
                         {% csrf_token %}
                         <h6 class="text-lg font-bold mb-5">General Information</h6>
                         <div class="flex flex-col sm:flex-row">
@@ -39,17 +39,26 @@
                                 <img src="{% static 'assets/images/default_avatar.png' %}" alt="image" class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto" />
                             </div>
                             <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
-                               
                                 <div>
-                                    <label for="name">Full Name</label>
-                                    {% comment %} <input id="name" type="text" placeholder="{{user_form.username}}" class="form-input" /> {% endcomment %}
+                                    <label for="name">Username</label>
+                                    <input id="username" name="username"type="text" placeholder=" enter username" class="form-input" value="{{usr.username}}" />
                                    
                                 </div>
                                 <div>
                                     <label for="email">Email</label>
-                                    {% comment %} <input id="email" type="email" placeholder="{{user_form.email}}" class="form-input" /> {% endcomment %}
+                                    <input id="email" name="email"type="email" placeholder="Enter Email" class="form-input" value="{{usr.email}}"/>
+                                </div>
+                                <div>
+                                    <label for="name">First Name</label>
+                                    <input id="first_name" name="first_name"type="text" placeholder="Enter First Name" class="form-input" value="{{usr.first_name}}"/>
                                    
                                 </div>
+                                <div>
+                                    <label for="name">Last Name</label>
+                                    <input id="last_name" name="last_name"type="text" placeholder="Enter Last Name" class="form-input" value="{{usr.last_name}}"/>
+                                   
+                                </div>
+                               
                              
                                 <div class="sm:col-span-2 mt-3">
                                     <button type="submit" class="btn btn-primary">Save</button>
