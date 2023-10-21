@@ -88,7 +88,28 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput())
     password = forms.CharField(widget=forms.PasswordInput())
 
+class UploadImage(forms.ModelForm):
 
+  
+
+    class Meta:
+        model = User
+        fields=['profile_picture']
+    # @transaction.atomic
+    # def save(self,commit = True):
+    #     user = super().save(commit=False)
+    #     # if user.is_lecturer == True:
+    #     #     if commit:
+    #     #         user.save()
+    #     #         lecturer = Lecturer.objects.update(user=user, first_name=self.cleaned_data.get('first_name'), last_name=self.cleaned_data.get('last_name'))
+
+    #     if user.is_student ==True:
+    #          if commit:
+    #             user.save()
+    #             student = Student.objects.update(user=user, profile_picture =self.cleaned_data.get('profile_picture') )
+
+    #     return user
+    
 # class UpdateUserForm(forms.ModelForm): 
 #     username = forms.CharField(max_length=100, required=True,widget=forms.TextInput(attrs={'class':'form-input'}))
 #     email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class':'form-input'}))

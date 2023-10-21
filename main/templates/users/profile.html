@@ -28,9 +28,15 @@
                 </div>
                 <div class="mb-5">
                     <div class="flex flex-col justify-center items-center">
-                        <img src="{% static 'assets/images/default_avatar.png' %}" alt="image" class="w-24 h-24 rounded-full object-cover  mb-5" />
+                        <img src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" class="w-24 h-24 rounded-full object-cover  mb-5" />
+                       <a href="{% url 'upload-image'%} ">
+                       <button type="button" class="btn btn-outline-dark btn-sm">Upload Images</button></a> 
                         <p class="font-semibold text-primary text-xl">{{user}}</p>
+                        
+
                     </div>
+                   
+                   
                     <ul class="mt-5 flex flex-col max-w-[160px] m-auto space-y-4 font-semibold text-white-dark">
                         <li>
                             <a href="javascript:;" class="flex items-center gap-2">

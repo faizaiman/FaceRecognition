@@ -19,7 +19,7 @@ knownNames = []
 
 
 def upload():
-    print("UPLAOD FILE")
+    print("UPLOAD FILE")
 
     url = 'http://raspberrypi.local:5000/upload'
     filepath = 'encodings.pickle'

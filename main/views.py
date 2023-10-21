@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
 from .decorators import student_required,lecturer_required
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -150,8 +150,6 @@ def editProfile(request,id):
 # End of edit profile
     
 
-
-
 #  add Course
 def addCourse(request):
     if not request.user.is_authenticated:
@@ -189,6 +187,9 @@ def viewCourse(request):
     return render(request,"course/course.html",{'courses':course})
 # end of view course
 
+
+
+
 # edit course
 def editCourse(request,id):
     course = get_object_or_404(Course,id=id)
@@ -216,6 +217,43 @@ def deleteCourse(request,id):
     course.delete()
     return redirect(viewCourse)
 # end of delete course
+
+#upload image
+def uploadImage(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST' and request.FILES['profile_picture']:
+        
+        form = UploadImage(request.POST,request.FILES)
+      #get login user 
+        currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
+        if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
+            getUserLecturer = get_object_or_404(Lecturer,user_id=request.user.id) #get data from table main_lecturer
+        elif currentUser.is_student ==True: #is student 
+            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
+        else:
+            currentUser= get_user_model().objects.get(id=request.user.id) #get admin profile
+            getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
+        
+        if form.is_valid():
+           
+            currentUser.profile_picture=request.FILES['profile_picture']
+            getUserStudent.profile_picture=request.FILES['profile_picture']
+            image=form.cleaned_data['profile_picture']
+            print(form)
+            currentUser.save()
+            getUserStudent.save()
+            return redirect(profile)
+        else:
+            print(form)
+            
+            form = UploadImage()
+
+   
+    return render(request,"users/uploadImage.html",{'form':UploadImage()})
+# end of uploadImage
+
+
 
 # add lecturer
 def addLecturer(request):
