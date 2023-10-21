@@ -86,19 +86,19 @@ WSGI_APPLICATION = 'vristo.wsgi.application'
 DATABASES = {
     'default': {
         #for windows 
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'ftend',
-        # 'USER': 'root',
-        # 'PASSWORD': '',
-        # 'PORT': '3306'
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ftend',
+        'USER': 'root',
+        'PASSWORD': '',
+        'PORT': '3306'
         
         #for macbook
-        'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ftend',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST':'localhost',
-        'PORT': '5432'
+        # 'ENGINE':'django.db.backends.postgresql_psycopg2',
+        # 'NAME': 'ftend',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'admin',
+        # 'HOST':'localhost',
+        # 'PORT': '5432'
     }
 }
 

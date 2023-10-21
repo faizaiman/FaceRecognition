@@ -10,12 +10,15 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_lecturer = models.BooleanField(default=False)
+    profile_picture = models.ImageField(upload_to='profile_images',default='default_avatar.png')
+
     
 class Student(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
     first_name=models.CharField(max_length=100)
     last_name=models.CharField(max_length=100)
     student_id=models.CharField(max_length=100)
+    profile_picture = models.ImageField(upload_to='profile_images',default='default_avatar.png')
     created_at = models.DateTimeField(default=timezone.now)
 
 class Lecturer(models.Model):
