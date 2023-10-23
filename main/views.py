@@ -99,7 +99,6 @@ def register(request):
 def profile(request):
     if not request.user.is_authenticated:
         return redirect(login)
-
     return render(request, 'users/profile.html')
 # end of view profile
 
@@ -236,18 +235,25 @@ def uploadImage(request):
             getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
         
         if form.is_valid():
-           
-            currentUser.profile_picture=request.FILES['profile_picture']
-            getUserStudent.profile_picture=request.FILES['profile_picture']
-            image=form.cleaned_data['profile_picture']
-            print(form)
-            currentUser.save()
-            getUserStudent.save()
-            return redirect(profile)
+            
+                if currentUser.is_student ==True: #check if current user is lecturer or not / else current user is student
+                        currentUser.profile_picture=request.FILES['profile_picture']
+                        getUserStudent.profile_picture=request.FILES['profile_picture']
+                        image=form.cleaned_data['profile_picture']
+                        print(form)
+                        currentUser.save()
+                        getUserStudent.save()
+                
+                else:
+                    currentUser.profile_picture=request.FILES['profile_picture']
+                    image=form.cleaned_data['profile_picture']
+                    print(form)
+                    currentUser.save()
+                    return redirect(profile)
         else:
             print(form)
-            
-            form = UploadImage()
+        
+        form = UploadImage()
 
    
     return render(request,"users/uploadImage.html",{'form':UploadImage()})
