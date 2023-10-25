@@ -6,12 +6,12 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
 from .decorators import student_required,lecturer_required
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
-from .models import Lecturer,Course,Student,Enrollment
+from .models import Lecturer,Course,Student,Enrollment,Timetable
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -147,7 +147,7 @@ def editProfile(request,id):
     
     return render(request,'users/accountSetting.html',{'usr':currentUser})
 # End of edit profile
-    
+
 
 #  add Course
 def addCourse(request):
@@ -186,8 +186,74 @@ def viewCourse(request):
     return render(request,"course/course.html",{'courses':course})
 # end of view course
 
+# view timetable
+def viewTimetable(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    
+    timetable = Timetable.objects.all().select_related('lecturer').select_related('course')# call data from table timetable and join table lecturer to get lecturer name and join table course to get course code
+    return render(request,'timetable/viewTimetable.html',{'tb':timetable})
+#end of view timetable 
 
 
+#addTimetable
+def addTimetable(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    
+    courses = Course.objects.all()
+    # dd(courses)
+    if request.method =='POST':
+        form = addTimetableForm(request.POST)
+        if form.is_valid():
+
+            course_id = request.POST['course_id'] #get course code from post
+            DayOfTheWeek = request.POST['DayOfTheWeek'] #get DayOfTheWeek from post
+            StartTime= request.POST['start_time'] #get StartTime from post
+            EndTime = request.POST['end_time'] #get EndTime from post 
+            lct_id = Course.objects.filter(id=course_id).values_list('lecturer_id',flat=True) #get lecturer id from course table 
+            lecturer_id = lct_id
+            Timetable(DayOfTheWeek=DayOfTheWeek,StartTime=StartTime,EndTime=EndTime,lecturer_id=lecturer_id,course_id=course_id).save()
+            # dd(lecturer_id)
+            print (form)
+            messages.success(request,f'Timetable has been created')
+            return redirect(viewTimetable) 
+        else:
+            print(form)
+            messages.warning(request,f'Fail to add Timetable')
+            form = addTimetableForm()
+    return render (request,'timetable/addTimetable.html',{'form':addTimetableForm(),'course':courses})
+#end of addTimeTable
+
+
+def editTimetable(request,id):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    
+    timetable = get_object_or_404(Timetable,id=id)
+    form = addTimetableForm(request.POST or None,instance=timetable)
+    course  = Course.objects.all()
+    
+    if form.is_valid():
+        timetable.course_id = request.POST['course_id'] #get course code from post
+        timetable.DayOfTheWeek = request.POST['DayOfTheWeek'] #get DayOfTheWeek from post
+        timetable.StartTime= request.POST['start_time'] #get StartTime from post
+        timetable.EndTime = request.POST['end_time'] #get EndTime from post 
+        lct_id = Course.objects.filter(id=timetable.course_id).values_list('lecturer_id',flat=True) #get lecturer id from course table 
+        timetable.lecturer_id = lct_id
+        timetable.save()      
+        messages.success(request,f'Timetable has been updated')
+        return redirect(viewTimetable)
+
+    else:
+        form = addTimetableForm(request.POST or None,instance=timetable)
+    
+    return render(request,"timetable/editTimetable.html",{'tbs':timetable,'course':course})
+
+def deleteTimetable(request,id):
+    timetable = get_object_or_404(Timetable,id=id)
+    timetable.delete()
+    return redirect(viewTimetable)
 
 # edit course
 def editCourse(request,id):
@@ -236,20 +302,19 @@ def uploadImage(request):
         
         if form.is_valid():
             
-                if currentUser.is_student ==True: #check if current user is lecturer or not / else current user is student
+                if currentUser.is_student ==True: #check if current user is student or not / else current user is lecturer/admin
                         currentUser.profile_picture=request.FILES['profile_picture']
                         getUserStudent.profile_picture=request.FILES['profile_picture']
                         image=form.cleaned_data['profile_picture']
                         print(form)
-                        currentUser.save()
                         getUserStudent.save()
                 
-                else:
-                    currentUser.profile_picture=request.FILES['profile_picture']
-                    image=form.cleaned_data['profile_picture']
-                    print(form)
-                    currentUser.save()
-                    return redirect(profile)
+        
+                currentUser.profile_picture=request.FILES['profile_picture']
+                image=form.cleaned_data['profile_picture']
+                print(form)
+                currentUser.save()
+                return redirect(profile)
         else:
             print(form)
         
@@ -358,3 +423,4 @@ def dropSubject(request,id):
     enroll.delete()
     return redirect(mySubject)
 # end of student drop subject
+

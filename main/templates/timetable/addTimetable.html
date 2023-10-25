@@ -1,0 +1,93 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+   <!-- Include Moment.js CDN -->
+   <script type="text/javascript" src=
+   "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js">
+       </script>
+    
+       <!-- Include Bootstrap DateTimePicker CDN -->
+       <link
+           href=
+   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css"
+           rel="stylesheet">
+    
+       <script src=
+   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js">
+           </script>
+<div x-data="sales">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Add Timetable</span>
+        </li>
+    </ul>
+
+</div>
+<div class="panel">
+    <form class="space-y-5" method='POST'>
+        <!-- Error -->
+<!-- end of Error-->
+        {% csrf_token %}
+          {% comment %} <div>
+          
+            <label for="gridLecturerId" name="lecturer_id" id="lecturer_id">Lecturer</label>
+            <select name="lecturer_id" id="lecturer_id" class="form-select text-white-dark" >
+                <option>Select Lecturer</option>
+                {% for lect in lects %}
+                <option value="{{lect.id}}">{{lect.username}}</option>
+
+                {%endfor%}
+            </select>
+        </div> {% endcomment %}
+        <div>
+            <label for="gridCourseCode">Course</label>
+            <select name="course_id" id="course_id" class="form-select text-white-dark" > 
+                <option>Select Course</option> 
+                {% for courses in course%}
+                    <option value='{{courses.id}}'>{{courses.course_code}}{{courses.course_name}}</option>
+                {% endfor %}
+            </select>     
+        </div>
+            <div>
+                <label for="gridDays">Days</label>
+                <select name="DayOfTheWeek" id="DayOfTheWeek" class="form-select text-white-dark" >
+                    <option> Select Day</option>
+                    <option value="Monday "> Monday</option>
+                    <option value="Tuesday "> Tuesday</option>
+                    <option value="Wednesday "> Wednesday</option>
+                    <option value="Thursday "> Thursday</option>
+                    <option value="Friday "> Friday</option>
+                    <option value="Saturday "> Saturday</option>
+                    <option value="Sunday "> Sunday</option>
+                    
+                </select>
+            </div>
+        <div>
+            <label for="gridCourseName">Start time</label>
+            <input name="start_time" id="start_time" type="text"  class="form-input" required/>
+        </div>
+        <div>
+            <label for="gridCreditHours">End time</label>
+            <input name="end_time" id="end_time" type="text"  class="form-input" required/>
+        </div>
+      
+       
+        <button type="submit" class="btn btn-primary !mt-6">Submit</button>
+    </form>
+        </div>
+
+<script>
+    $('#start_time').datetimepicker({
+        format: 'hh:mm a'
+    });
+    $('#end_time').datetimepicker({
+        format: 'hh:mm a'
+    });
+</script>
+        
+{% endblock %}

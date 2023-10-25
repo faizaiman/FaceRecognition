@@ -36,7 +36,7 @@ class Student(models.Model):
 @receiver(post_save, sender=Student) 
 def create_student_folder(sender,instance,created,**kwargs):
     if created:
-        student_folder = os.path.join("dataset/",instance.student_id)
+        student_folder = os.path.join("face_trainer/dataset",instance.student_id)
         os.makedirs(student_folder,exist_ok=True)
 
 class Lecturer(models.Model):
@@ -56,6 +56,16 @@ class Enrollment(models.Model):
     student = models.ForeignKey(Student,on_delete=models.CASCADE)
     course = models.ForeignKey(Course,on_delete=models.CASCADE)
     register_at = models.DateTimeField(default=timezone.now)
+
+class Timetable(models.Model):
+    course = models.ForeignKey(Course,on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(Lecturer,on_delete=models.CASCADE)
+    DayOfTheWeek = models.CharField(max_length=100)
+    StartTime = models.CharField(max_length=100)
+    EndTime = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

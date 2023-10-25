@@ -1,0 +1,81 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+<script type="text/javascript" src=
+"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js">
+    </script>
+ 
+    <!-- Include Bootstrap DateTimePicker CDN -->
+    <link
+        href=
+"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css"
+        rel="stylesheet">
+ 
+    <script src=
+"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js">
+        </script>
+<div x-data="sales">
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Edit Course</span>
+        </li>
+    </ul>
+
+</div>
+<div class="panel">
+    <form class="space-y-5" method='POST' id="form">
+            
+            {% csrf_token %}
+            
+            <div>
+                <label for="gridCourseCode">Course</label>
+                <select name ="course_id" id="course_id" class="form-select text-white-dark">
+                    <option>Select Course</option>
+                    {% for courses in course%}
+                    <option value="{{courses.id}}" {%if courses.id == tbs.course_id%} selected="selected"{%endif%}>{{courses.course_code}}{{courses.course_name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div>
+                <label for="gridCourseName">Days</label>
+                <select name="DayOfTheWeek" id="DayOfTheWeek" class="form-select text-white-dark" >
+                    <option values="{{tbs.DayOfTheWeek}}" selected="selected">{{tbs.DayOfTheWeek}}</option>
+                    <option> Select Day</option>
+                    <option value="Monday "> Monday</option>
+                    <option value="Tuesday "> Tuesday</option>
+                    <option value="Wednesday "> Wednesday</option>
+                    <option value="Thursday "> Thursday</option>
+                    <option value="Friday "> Friday</option>
+                    <option value="Saturday "> Saturday</option>
+                    <option value="Sunday "> Sunday</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="gridCreditHours">Start Time</label>
+                <input name="start_time" id="start_time" type="text"  class="form-input" value="{{tbs.StartTime}}" required/>                
+            </div>
+            <div>
+                <label for="gridCreditHours">End Time</label>
+                <input name="end_time" id="end_time" type="text"  class="form-input" value="{{tbs.EndTime}}"required/>
+                
+            </div>
+            
+            <button type="submit" class="btn btn-primary !mt-6">Update</button>
+    </form>
+</div>
+
+<script>
+    $('#start_time').datetimepicker({
+        format: 'hh:mm a'
+      
+    });
+    $('#end_time').datetimepicker({
+        format: 'hh:mm a'
+    });
+</script>
+{% endblock %}

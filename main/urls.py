@@ -26,6 +26,10 @@ urlpatterns = [
     path('viewSubject/',views.ViewASubject),
     path('registerSubject/(?P<id>\d+)(?:/(?P<uid>\d+))?',views.registerSubject,name= 'register-subject'),
     path('dropSubject/(?P<id>\d+)',views.dropSubject,name= 'drop-subject'),
+    path('viewTimetable',views.viewTimetable),
+    path('addTimetable',views.addTimetable),
+    path('timetable/<id>',views.editTimetable,name= 'edit-timetable'),
+    path('deleteT/<id>',views.deleteTimetable,name='delete-timetable'),
     
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),

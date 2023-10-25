@@ -3,7 +3,7 @@ from django.db import transaction
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
-from main.models import User, Profile,Student,Lecturer,Course
+from main.models import User, Profile,Student,Lecturer,Course,Timetable
 from django.forms import ModelForm
 
 
@@ -82,6 +82,19 @@ class addCourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ['course_code','course_name','credit_hours','lecturer_id']
+
+
+class addTimetableForm(forms.ModelForm):
+    DayOfTheWeek = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    course_id = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    start_time = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    end_time = forms.CharField(widget=forms.TextInput(attrs={'class':'form-input'}))
+    lecturer_id = forms.CharField(required=False)
+    
+    class Meta: 
+        model = Timetable
+        fields =['DayOfTheWeek','course_id','start_time','end_time','lecturer_id']
+    
 
 
 class LoginForm(AuthenticationForm):
