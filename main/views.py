@@ -47,8 +47,18 @@ User = get_user_model
 def index(request):
     if not request.user.is_authenticated:
         return redirect(login)
+
+    total_lecture = get_user_model().objects.select_related('lecturer').filter(is_lecturer=True).count()
+    total_student = get_user_model().objects.select_related('student').filter(is_student=True).count()
+    student_tclass = Enrollment.objects.select_related('course').select_related('student').filter(student_id = request.user.id).count()
+    lecturer_class = Timetable.objects.all().select_related('lecturer').select_related('course').filter(lecturer_id = request.user.id).count()
+    timetable =Timetable.objects.filter(course__enrollment__student=request.user.id).select_related('course', 'lecturer').all()
+
+
+    lect_timetable = Timetable.objects.filter(lecturer_id=request.user.id).select_related('course', 'lecturer').prefetch_related('course__enrollment_set__student').all()
+    # dd(lect_timetable)
    
-    return render(request,"index.html")
+    return render(request,"index.html",{'total_lecturer':total_lecture,'total_student':total_student,'total_stclass':student_tclass,'t_lc':lecturer_class,'tb':timetable,'lect_tb':lect_timetable})
 # login auth
 def login(request):
     if request.method == 'POST':
