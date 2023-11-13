@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<script defer src="{% static 'assets/js/apexcharts.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 
 <div x-data="finance">
@@ -161,6 +161,51 @@
 </div>
 </div>
 {%endif%}
+
+{%if  request.user.is_superuser%}
+<div class="panel">
+    <div id="chart"></div>
+
+</div>
+
+<script>
+    var options = {
+        chart: {
+          type: 'area',
+          height:300,
+          zoom:false,
+        },
+        title:{
+            text: 'Total User Register in System'
+        },
+        stroke: {
+            width: 2,
+            curve: 'smooth'
+        },
+        colors: ['#805dca'],
+        dataLabels: {
+            enabled: false
+        },
+
+        series: [{
+          name: 'total',
+          data: {{data|safe}},
+          
+        }],
+        xaxis: {
+          categories: {{labels|safe}},
+     
+         
+        
+        }
+      }
+      
+      var chart = new ApexCharts(document.querySelector("#chart"), options);
+      
+      chart.render();
+</script>
+{%endif%}
+
 
 
 

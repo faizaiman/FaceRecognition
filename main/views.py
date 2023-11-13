@@ -12,6 +12,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
 from .models import Lecturer,Course,Student,Enrollment,Timetable
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+from datetime import datetime
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -54,11 +57,25 @@ def index(request):
     lecturer_class = Timetable.objects.all().select_related('lecturer').select_related('course').filter(lecturer_id = request.user.id).count()
     timetable =Timetable.objects.filter(course__enrollment__student=request.user.id).select_related('course', 'lecturer').all()
 
-
     lect_timetable = Timetable.objects.filter(lecturer_id=request.user.id).select_related('course', 'lecturer').prefetch_related('course__enrollment_set__student').all()
-    # dd(lect_timetable)
+
+
+    # Start of chart query
+    users= get_user_model().objects.all()
+    user_registrations = users.annotate(
+        registration_date=TruncMonth('date_joined')
+    ).values('registration_date').annotate(
+        registration_count=Count('id')
+    ).order_by('registration_date')
+    data = [entry['registration_count'] for entry in user_registrations]
+    labels = [entry['registration_date'].strftime('%B-%Y') for entry in user_registrations]
+    # end of chart query
+    
    
-    return render(request,"index.html",{'total_lecturer':total_lecture,'total_student':total_student,'total_stclass':student_tclass,'t_lc':lecturer_class,'tb':timetable,'lect_tb':lect_timetable})
+    
+    # dd(labels)
+   
+    return render(request,"index.html",{'total_lecturer':total_lecture,'total_student':total_student,'total_stclass':student_tclass,'t_lc':lecturer_class,'tb':timetable,'lect_tb':lect_timetable,'data':data,'labels':labels})
 # login auth
 def login(request):
     if request.method == 'POST':
