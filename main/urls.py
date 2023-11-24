@@ -30,7 +30,8 @@ urlpatterns = [
     path('addTimetable',views.addTimetable),
     path('timetable/<id>',views.editTimetable,name= 'edit-timetable'),
     path('deleteT/<id>',views.deleteTimetable,name='delete-timetable'),
-    
+    path('viewClass',views.ViewClass),
+
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
     path('recognize',files.recognize,name ="recognize"),

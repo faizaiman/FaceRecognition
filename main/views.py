@@ -431,6 +431,7 @@ def ViewASubject(request):
     return render(request,"student/registerSubject.html",{'cours':course,'enrl':enrollment})
 # end of student View Available Subject
 
+
 # Student Register Subject 
 def registerSubject(request,id,uid):
     enrollment = Enrollment() #call models enrollment
@@ -451,3 +452,11 @@ def dropSubject(request,id):
     return redirect(mySubject)
 # end of student drop subject
 
+def ViewClass(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    
+    lect_timetable = Timetable.objects.filter(lecturer_id=request.user.id).select_related('course', 'lecturer').prefetch_related('course__enrollment_set__student').all()
+
+    
+    return render(request,'lecturer/viewClass.html',{'lect_tb':lect_timetable})
