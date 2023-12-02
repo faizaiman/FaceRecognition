@@ -35,8 +35,9 @@ urlpatterns = [
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
     path('recognize',files.recognize,name ="recognize"),
-    path('detect/<name>/',files.detect,name="detect")
+    # path('detect/<name>/',files.detect,name="detect"),
+    path('detect/<name>/',files.detect,name="detect"),
 
-    
+    path('populate_attendance/',files.populate_attendance)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

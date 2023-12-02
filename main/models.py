@@ -65,6 +65,11 @@ class Timetable(models.Model):
     EndTime = models.CharField(max_length=100)
     created_at = models.DateTimeField(default=timezone.now)
 
+class Attendance(models.Model):
+    timestamp = models.DateTimeField(default=timezone.now)
+    student = models.ForeignKey(Student,on_delete=models.CASCADE)
+    course = models.ForeignKey(Course,on_delete=models.CASCADE)
+    status = models.CharField(max_length=100, default="absent")
 
 
 class Profile(models.Model):
