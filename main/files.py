@@ -64,6 +64,7 @@ def detect(request,name):
 
     
     return JsonResponse({'ok':'true', 'status':'200'})
+
     
 def upload_file(request, path="", insecure=False, **kwargs):
   print("UPLAOD FILE")
@@ -76,58 +77,50 @@ def upload_file(request, path="", insecure=False, **kwargs):
   
   return JsonResponse({'ok':'true', 'status':'200'})
 
+    
+    
 def populate_attendance(request):
     print('populate_attendance')
     
     course_id = request.GET.get('courseId', '')
     print(course_id)
     
-    utc_now =datetime.utcnow() #utc -> local GMT+8
-    print(utc_now)
-  
-    local_now = timezone.make_aware(utc_now, timezone=timezone.get_default_timezone())
-
-
+    local_now = datetime.now()
+    print("local now")
+    print(local_now)
     # start of day & end of day in GMT+8 (local timezone)
-    start_day = timezone.now().replace(hour=0,minute=0,second=0,microsecond=0)
+    start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
-    
-    
-    print("GMT8 timezone")
+    print("start day")
     print(start_day)
+    
+    print("end day")
     print(end_day)
+    
+    # start of day & end of day in GMT+8 (local timezone)
     # convert back to utc GMT0
     # value after converted utc, use in range
-    start_day_utc = start_day.astimezone(timezone.utc)
-    end_day_utc = end_day.astimezone(timezone.utc)
-    print("UTC")
-    print(start_day_utc)
-    print(end_day_utc)
     
-    
-    # 1. check course id for todays date not yet populated
+    # 1. check course id for today's date not yet populated
     ### populate student and course id for todays date (default absent)
     ### note: date in timerange, convert to GMT+8; get the start of day and end of day for today in GMT+8;
     ### timestamp__range=(startofday.toutc,endofday.toutc)
     ## if !populated 
-    exist = Attendance.objects.filter(course=course_id,timestamp__range=(start_day_utc,end_day_utc)).exists()
+    
+    exist = Attendance.objects.filter(course=course_id, timestamp__range=(start_day, end_day)).exists()
     
     if not exist:
         students_enrolled = Enrollment.objects.filter(course=course_id).values_list('student_id', flat=True)
 
         for student_id in students_enrolled:
-            student = Student.objects.get(user_id = student_id)
+            student = Student.objects.get(user_id=student_id)
             print(student.student_id)
-            Attendance.objects.create(course_id=course_id,student=student,timestamp=local_now,status= 'absent')
+            Attendance.objects.create(course_id=course_id, student=student, timestamp=local_now, status='absent')
         
-        return JsonResponse({'ok':'true','status':'200'})
+        return JsonResponse({'ok': 'true', 'status': '200'})
     
-    ## if populated
-    ### return
+    # if already populated
     else:
-        return JsonResponse({'ok':'true', 'status':'200'})
+        print("already populated")
+        return JsonResponse({'ok': 'true', 'status': '200'})
 
-    # student=Student.objects.get(student_id=name)
-    # course=Course.objects.get(id=course_id)
-    
-    
