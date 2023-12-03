@@ -31,6 +31,10 @@ urlpatterns = [
     path('timetable/<id>',views.editTimetable,name= 'edit-timetable'),
     path('deleteT/<id>',views.deleteTimetable,name='delete-timetable'),
     path('viewClass',views.ViewClass),
+    path('viewAttendance',views.viewAttendance),
+    path('attendanceSessions/<id>',views.attendanceSessions,name='attendance-sessions'),
+    path('attendanceReport/<str:date>/<int:class_id>/',views.attendanceReport,name='attendance-report'),
+    
 
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
