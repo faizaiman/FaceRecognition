@@ -22,61 +22,34 @@
             <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
         </li>
         <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
-            <span>Attendance Sessions</span>
+            <span>Attendance</span>
         </li>
     </ul>
     <br>
     <div class="panel">
         <h5 class="font-semibold text-lg dark:text-white-light">Class</h5>
-        <div class="table-responsive" >
-            <table>
-                
-                <tr>
-                    <td width="20%" align="right">Code</td>
-                    <td width="4%" align="center">:</td>
-                    <td>{{ class_info.course_code }}</td>
-                </tr>
-                <tr>
-                    <td width="20%" align="right">Name</td>
-                    <td width="4%" align="center">:</td>
-                    <td>{{ class_info.course_name }}</td>
-                </tr>
-                    <td width="20%" align="right">Lecturer</td>
-                    <td width="4%" align="center">:</td>
-                    <td>{{ class_info.lecturer__first_name}}{{class_info.lecturer__last_name}}</td>
-                <tr>
-                    <td width="20%" align="right">Total Session</td>
-                    <td width="4%" align="center">:</td>
-                    <td>{{total_session}}</td>
-                </tr>
-            
-            </table>
-        </div>
-        <br><br>
-            <table id="tlect" class="table-hover">
+            <table id="tlect" class="table-hover ">
                 <thead >
                     <tr>
                         <th>#</th>
-                        <th>Day</th>
-                        <th>Sessions</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>%Absent</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {%for session in attend_sessions%}
+                    {% for entry in attendance_info %}
                     <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{session.course__timetable__DayOfTheWeek}}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ entry.course.course_code }}</td>
                         <td>
-                            <a href="{% url 'attendance-report' date=session.date course_id=session.course_id %}"style="color: blue;">
-                                {{session.date|date:"d/m/Y"}}
+                            <a href="{% url 'attendance-statistic' entry.course.id %}" style="color: blue;">
+                                {{ entry.course.course_name }}
                             </a>
                         </td>
-                        <td>{{session.course__timetable__StartTime}}</td>
-                        <td>{{session.course__timetable__EndTime}}</td>
+                        <td>{{ entry.absent_percentage }}</td>
                     </tr>
-                    {%endfor%}
+                {% endfor %}
                 </tbody>
             </table>
 </div>
@@ -85,6 +58,8 @@
     $(document).ready(function(){
         $('#tlect').DataTable({
            "searching": false
+
+            
         });
        
         

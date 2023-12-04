@@ -251,17 +251,21 @@
                         <li>
                             <a href="/viewClass">View Class</a>
                         </li>
+                        
+                        
+                        <li>
+                            <a href="/viewAttendance">Class Attendance</a>
+                        </li>
                         {% endif%}
+                        {% if request.user.is_student %}  
                       <li>
-                          <a href="/viewAttendance">View Attendance</a>
+                          <a href="/studentAttendance">My Attendance</a>
                       </li>
-                   
+                      {% endif%}
                   </ul>
               </li>
               {% endif %}
               {% comment %} End of Attendance DropDown Menu {% endcomment %}
-                
-            
             </ul>
         </div>
     </nav>
