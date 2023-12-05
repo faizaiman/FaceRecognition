@@ -26,6 +26,10 @@
         </li>
     </ul>
     <br>
+    <button type="button" class="btn btn-info rounded-full btn-sm" onClick="javascript:stop();">
+                              
+        stop            
+    </button>
     <div class="panel">
         <h5 class="font-semibold text-lg dark:text-white-light">Class</h5>
             <table id="tlect" class="table-hover ">
@@ -84,26 +88,64 @@
         
     });
 
-    function takeAttendance(courseId){
-        console.log('Button click takeAttendance',courseId)
-        // 1. populate student taking this course in to attendance table
-        $.ajax({
-            type: "GET",
-            url: "populate_attendance?courseId=" + courseId,
-            success: function (result) {
-                console.log(result);
-            },
-        });
+    function populate(courseId){
+        console.log('populate att')
+        return new Promise(function(resolve,reject){
+            $.ajax({
+                type: "GET",
+                url: "populate_attendance?courseId=" + courseId,
+                success: function (result) {
+                    resolve(result);
+                },
+                error: function (error){
+                    reject(error)
+                }
+            });
+        })
+    }
 
-        // 2. start taking attendance after all student taking this course populated
-        // trigger pi face recognition API
-        $.ajax({
-            type: "GET",
-            url: "http://raspberrypi.local:5000/face/test?courseId=" + courseId,
-            success: function (result) {
-                console.log(result);
-            },
-        });
+    function stop(){
+        
+            $.ajax({
+                type: "GET",
+                url: "http://raspberrypi.local:5000/face/stop",
+         
+            });
+    }
+
+    function faceRecognize(courseId){
+        return new Promise(function(resolve,reject){
+            $.ajax({
+                type: "GET",
+                url: "http://raspberrypi.local:5000/face/recognize?courseId=" + courseId,
+                success: function (result) {
+                    resolve(result);
+                },
+                error: function (error){
+                    reject(error)
+                }
+            });
+        })
+    }
+
+    async function takeAttendance(courseId){
+        console.log('Button click takeAttendance',courseId)
+
+        try{
+             // 1. populate student taking this course in to attendance table
+            
+            await populate(courseId);
+
+            // 2. start taking attendance after all student taking this course populated
+            // trigger pi face recognition API
+            await faceRecognize(courseId);
+
+            console.log("start face recognition");
+        }catch(err){
+
+            console.log('Take Attendance Error', err);
+        }
+       
     }
 </script>
 {% endblock javascript %}
