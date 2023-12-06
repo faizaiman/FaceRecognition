@@ -27,7 +27,7 @@
     </ul>
     <br>
     <div class="panel">
-        <h5 class="font-semibold text-lg dark:text-white-light">Attendance Report For {{course_info.course_code}} {{course_info.course_name}} {{date}}</h5>
+        <h5 class="font-semibold text-lg dark:text-white-light">Attendance Report For {{course_info.course_code}} {{course_info.course_name}} on  {{date|date:"d/m/Y"}}</h5>
         <div class="table-responsive" >
             <table>
                 
@@ -43,7 +43,7 @@
                 </tr>
                     <td width="20%" align="right">Date</td>
                     <td width="4%" align="center">:</td>
-                    <td>{{date}}</td>
+                    <td>{{ date|date:"d/m/Y" }}</td>
                 <tr>
                 </tr>
                 <td width="20%" align="right">Total Student Absent</td>

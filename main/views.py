@@ -12,9 +12,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core import serializers
 from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance
-from django.db.models import Count
+from django.db.models import Count,F,ExpressionWrapper, fields
 from django.db.models.functions import TruncMonth,TruncDate
-from datetime import datetime
+from datetime import datetime,timedelta
 
 # from main.models import UserForm, User, Attendance, UserTask, Task
 # from main import trainer, face_recognizer, photos_path, utility
@@ -469,27 +469,59 @@ def viewAttendance(request):
     
     return render(request,'lecturer/attendance.html',{'lect_tb':lect_timetable})
 
-def attendanceSessions(request,id):
+# def attendanceSessions(request,id):
+#     if not request.user.is_authenticated:
+#         return redirect(login)
+    
+    
+#     attendance_sessions =( 
+#                             Attendance.objects
+#                     .filter(course_id=id)
+#                     .select_related('course__timetable')
+#                     .annotate(date=TruncDate('timestamp'))
+#                     .values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime','course_id')
+#                     .annotate(session_count=Count('id'))
+#                     .order_by('date')
+#                           )
+    
+#     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
+
+#     total_class_sessions = attendance_sessions.count()
+    
+    
+#     return render(request,'lecturer/attendance_sessions.html',{'attend_sessions':attendance_sessions,'class_info':class_info,'total_session':total_class_sessions})
+
+
+def attendanceSessions(request, id):
     if not request.user.is_authenticated:
         return redirect(login)
     
-    
-    attendance_sessions =( 
-                            Attendance.objects
-                    .filter(course_id=id)
-                    .select_related('course__timetable')
-                    .annotate(date=TruncDate('timestamp'))
-                    .values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime','course_id')
-                    .annotate(session_count=Count('id'))
-                    .order_by('date')
-                          )
-    
+    attendance_sessions = (
+        Attendance.objects
+        .filter(course_id=id)
+        .select_related('course__timetable')
+        .annotate(date=TruncDate('timestamp'))
+        .values(
+            'date', 
+            'course__timetable__DayOfTheWeek', 
+            'course__timetable__StartTime', 
+            'course__timetable__EndTime',
+            'course_id'
+        )
+        .annotate(
+            next_date=ExpressionWrapper(F('date') + timedelta(days=1), output_field=fields.DateField()),
+            session_count=Count('id')
+        )
+        .order_by('date')
+    )
+            
     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
 
     total_class_sessions = attendance_sessions.count()
     
-    
-    return render(request,'lecturer/attendance_sessions.html',{'attend_sessions':attendance_sessions,'class_info':class_info,'total_session':total_class_sessions})
+    return render(request, 'lecturer/attendance_sessions.html', {'attend_sessions': attendance_sessions, 'class_info': class_info, 'total_session': total_class_sessions})
+
+
 
 def attendanceReport(request,date,course_id):
     if not request.user.is_authenticated:
@@ -499,48 +531,51 @@ def attendanceReport(request,date,course_id):
         Attendance.objects
         .filter(timestamp__date=date, course_id=course_id)
         .select_related('student')
+        .annotate(
+            next_date=ExpressionWrapper(F('timestamp') + timedelta(days=1), output_field=fields.DateTimeField())
+        )
     )
+    next_date = attendance_data.first().next_date
     course_info = Course.objects.values('course_code', 'course_name').get(id=course_id)
     total_absent_students = attendance_data.filter(status='absent').count()
+    return render(request,'lecturer/attendance_report.html',{'attendance_data':attendance_data,'date':next_date,'course_info':course_info,'total_absent':total_absent_students})
 
-    return render(request,'lecturer/attendance_report.html',{'attendance_data':attendance_data,'date':date,'course_info':course_info,'total_absent':total_absent_students})
+
+
 
 def studentAttendance(request):
     if not request.user.is_authenticated:
-        return redirect('login')  # Adjust 'login' to your actual login URL pattern
+        return redirect('login')  
 
-    try:
-        # Retrieve the courses in which the student is enrolled
-        enrolled_courses = Course.objects.filter(enrollment__student__user=request.user)
+   
+    # Retrieve the courses in which the student is enrolled
+    enrolled_courses = Course.objects.filter(enrollment__student__user=request.user)
 
-        # Retrieve timetable and attendance information for each enrolled course
-        attendance_info = []
-        for course in enrolled_courses:
-            timetable_entries = Timetable.objects.filter(course=course).select_related('lecturer')
-            attendance_entries = Attendance.objects.filter(student__user=request.user, course=course)
+    # Retrieve timetable and attendance information for each enrolled course
+    attendance_info = []
+    
+    for course in enrolled_courses:
+        timetable_entries = Timetable.objects.filter(course=course).select_related('lecturer')
+        attendance_entries = Attendance.objects.filter(student__user=request.user, course=course)
 
-            # Calculate the total session count based on unique dates from attendance entries
-            total_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
+        # Calculate the total session count based on unique dates from attendance entries
+        total_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
 
-            present_sessions = attendance_entries.filter(status='present').count()
-            absent_sessions = total_sessions - present_sessions
-            absent_percentage = (absent_sessions / total_sessions) * 100 if total_sessions > 0 else 0
-            attended_percentage = (present_sessions / total_sessions) * 100 if total_sessions > 0 else 0
+        present_sessions = attendance_entries.filter(status='present').count()
+        absent_sessions = total_sessions - present_sessions
+        absent_percentage = (absent_sessions / total_sessions) * 100 if total_sessions > 0 else 0
+        attended_percentage = (present_sessions / total_sessions) * 100 if total_sessions > 0 else 0
 
-            attendance_info.append({
-                'course': course,
-                'timetable_entries': timetable_entries,
-                'attendance_entries': attendance_entries,
-                'absent_percentage': round(absent_percentage, 2),
-                'attended_percentage': round(attended_percentage, 2),
-                'total_sessions': total_sessions,
-            })
+        attendance_info.append({
+            'course': course,
+            'timetable_entries': timetable_entries,
+            'attendance_entries': attendance_entries,
+            'absent_percentage': round(absent_percentage, 2),
+            'attended_percentage': round(attended_percentage, 2),
+            'total_sessions': total_sessions,
+        })
 
-    except Exception as e:
-        # Handle exceptions (log, display error message, etc.)
-        print(f"Error in studentAttendance view: {e}")
-        return render(request, 'error_page.html', {'error_message': 'An error occurred. Please try again later.'})
-
+ 
     return render(request,'student/studentAttendance.html', {'attendance_info': attendance_info})
 
 
@@ -549,35 +584,30 @@ def studentStatistic(request,course_id):
     if not request.user.is_authenticated:
         return redirect('login')  # Adjust 'login' to your actual login URL pattern
 
-    try:
-        # Get timetable and attendance information for the specified course
-        timetable_entries = Timetable.objects.filter(course_id=course_id)
-        attendance_entries = Attendance.objects.filter(student__user=request.user, course_id=course_id)
 
-        # Calculate total session count based on unique dates from attendance entries
-        total_session = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
+    # Get timetable and attendance information for the specified course
+    timetable_entries = Timetable.objects.filter(course_id=course_id)
+    attendance_entries = Attendance.objects.filter(student__user=request.user, course_id=course_id)
 
-        # Calculate total absent sessions and absent percentage
-        total_absent = attendance_entries.filter(status='absent').count()
-        absent_percentage = (total_absent / total_session) * 100 if total_session > 0 else 0
+    # Calculate total session count based on unique dates from attendance entries
+    total_session = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
 
-        # Retrieve information about the course
-        class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=course_id)
+    # Calculate total absent sessions and absent percentage
+    total_absent = attendance_entries.filter(status='absent').count()
+    absent_percentage = (total_absent / total_session) * 100 if total_session > 0 else 0
 
-        # Retrieve attendance sessions for the specified course
-        attend_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime', 'status').order_by('date')
+    # Get class info from course id
+    class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=course_id)
 
-        context = {
-            'class_info': class_info,
-            'total_session': total_session,
-            'total_absent': total_absent,
-            'absent_percentage': round(absent_percentage, 2),
-            'attend_sessions': attend_sessions,
-        }
+    # get attendance session by course
+    attend_sessions = attendance_entries.annotate(date=TruncDate(F('timestamp') + timedelta(days=1))).values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime', 'status').order_by('date')
 
-    except Exception as e:
-        # Handle exceptions (log, display error message, etc.)
-        print(f"Error in attendance_sessions view: {e}")
-        return render(request, 'error_page.html', {'error_message': 'An error occurred. Please try again later.'})
+    context = {
+        'class_info': class_info,
+        'total_session': total_session,
+        'total_absent': total_absent,
+        'absent_percentage': round(absent_percentage, 2),
+        'attend_sessions': attend_sessions,
+    }
 
     return render(request,'student/attendanceStatistic.html',context)

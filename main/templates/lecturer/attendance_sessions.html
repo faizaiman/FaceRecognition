@@ -64,19 +64,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {%for session in attend_sessions%}
+                    {% for session in attend_sessions %}
                     <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{session.course__timetable__DayOfTheWeek}}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ session.course__timetable__DayOfTheWeek }}</td>
                         <td>
-                            <a href="{% url 'attendance-report' date=session.date course_id=session.course_id %}"style="color: blue;">
-                                {{session.date|date:"d/m/Y"}}
+                            <a href="{% url 'attendance-report' date=session.date|date:'Y-m-d' course_id=session.course_id %}" style="color: blue;">
+                                {{ session.next_date|date:"d/m/Y" }}
                             </a>
                         </td>
-                        <td>{{session.course__timetable__StartTime}}</td>
-                        <td>{{session.course__timetable__EndTime}}</td>
+                        <td>{{ session.course__timetable__StartTime }}</td>
+                        <td>{{ session.course__timetable__EndTime }}</td>
                     </tr>
-                    {%endfor%}
+                {% endfor %}
                 </tbody>
             </table>
 </div>

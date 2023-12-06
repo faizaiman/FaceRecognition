@@ -31,35 +31,38 @@ def detect(request,name):
     student=Student.objects.get(student_id=name)
     course=Course.objects.get(id=course_id)
     
-    exist=Attendance.objects.filter(student=student,course=course).exists()
+    timestamp = timezone.now()
+    exist=Attendance.objects.filter(student=student,course=course,  timestamp__date=timestamp.date()).exists()
+    obj = Attendance.objects.filter(student=student,course=course, timestamp__date=timestamp.date()).values_list("id")
+    print('id',obj)
     
     if exist:
         
-        att_obj=Attendance.objects.filter(student=student,course=course).values_list("timestamp","status")[0]
+        att_obj=Attendance.objects.filter(student=student,course=course,timestamp__date=timestamp.date() ).values_list("timestamp","status")[0]
         datetime=att_obj[0]
         status=att_obj[1]
         
         print(datetime)
         print(status)
         
-        local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+        local_timezone = pytz.timezone('Asia/Singapore')
         # Convert UTC datetime to the local timezone
         local_logged = datetime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
         logged_date = '%s/%s/%s' % ( local_logged.day, local_logged.month, local_logged.year)
-        print ("Extracted date:", logged_date)
+        print ("logged date:", logged_date)
         
         now = datetime.utcnow()
         
         local_now = now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
         now_date = '%s/%s/%s' % ( local_now.day, local_now.month, local_now.year)
-        
+        print("now date",now)
         if (logged_date == now_date) and (status=='present'):
             print("Student logged")
         else:
             if status == 'absent':
                 Attendance.objects.filter(student=student,course=course,timestamp=datetime).update(status='present')
     else:
-        # Attendance.objects.create(student=student,course=course,status="present")
+        #Attendance.objects.create(student=student,course=course,status="present")
         return JsonResponse({'ok':'false', 'status':'404'})
 
     
