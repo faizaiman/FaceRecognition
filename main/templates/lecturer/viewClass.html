@@ -81,8 +81,7 @@
     $(document).ready(function(){
         $('#tlect').DataTable({
            "searching": false
-
-            
+     
         });
        
         
@@ -117,7 +116,7 @@
         return new Promise(function(resolve,reject){
             $.ajax({
                 type: "GET",
-                url: "http://raspberrypi.local:5000/face/test?courseId=" + courseId,
+                url: "http://raspberrypi.local:5000/face/recognize?courseId=" + courseId,
                 success: function (result) {
                     resolve(result);
                 },
@@ -138,9 +137,11 @@
 
             // 2. start taking attendance after all student taking this course populated
             // trigger pi face recognition API
-            await faceRecognize(courseId);
+            //await faceRecognize(courseId);
 
-            console.log("start face recognition");
+            var encodeCourseId = encodeURIComponent(courseId);
+            var url = "/takingAttendance/courseId=" + encodeCourseId + "/";
+            window.location.href= url;
         }catch(err){
 
             console.log('Take Attendance Error', err);

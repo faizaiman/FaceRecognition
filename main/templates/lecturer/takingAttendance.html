@@ -1,0 +1,169 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
+<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
+ {% endcomment %}
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
+
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Attendance Details</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        
+        {% comment %} <iframe src="http://raspberrypi.local:5000/video_feed" width="640" height="480" frameborder="0" allowfullscreen></iframe> {% endcomment %}
+        {% csrf_token %}
+
+        <h5 class="font-semibold text-lg dark:text-white-light">Taking Attendance</h5>
+        <div class="table-responsive" >
+            <table>
+                <tr>
+                    <td width="20%" align="right">Code</td>
+                    <td width="4%" align="center">:</td>
+                    <td>{{ course.course_code }}</td>
+                </tr>
+                <tr>
+                    <td width="20%" align="right">Name</td>
+                    <td width="4%" align="center">:</td>
+                    <td>{{ course.course_name }}</td>
+                </tr>
+            </table>
+        </div>
+        <br><br>
+        <button type="button" class="btn btn-danger rounded-full btn-sm" onClick="javascript:stop();">
+            Stop
+        </button>
+        <table id="tlect" class="table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in attendance_record %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ session.student.student_id }}</td>
+                    <td>{{ session.student.first_name }} {{ session.student.last_name }}</td>
+                    <td>
+                        <select class="form-select text-white-dark status-dropdown" data-student-id="{{ session.student.user_id }}" data-timestamp="{{ session.timestamp|date:"Y-m-d H:i:s" }}">
+                            <option value="absent" {% if session.status == 'absent' %}selected{% endif %}>Absent</option>
+                            <option value="attend" {% if session.status == 'present' %}selected{% endif %}>Present</option>
+                            <option value="mc" {% if session.status == 'mc' %}selected{% endif %}>MC</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% block javascript %}
+    <script>
+
+        function updateStatus(studentId, timestamp, newStatus) {
+            
+            $.ajax({
+                type: "POST",
+                url: "{% url 'update-status' %}",
+                data: {
+                    'student_id': studentId,
+                    'timestamp': timestamp,
+                    'status': newStatus,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',  // Include CSRF token
+                },
+                success: function (response) {
+                    console.log('Status updated successfully:', response);
+                },
+                error: function (error) {
+                    console.log('Error updating status:', error);
+                }
+            });
+        }
+
+        // Your other JavaScript code
+
+        $('body').on('change', '.status-dropdown', function () {
+            var studentId = $(this).data('student-id');
+            var timestamp = $(this).data('timestamp');
+            var newStatus = $(this).val();
+            updateStatus(studentId, timestamp, newStatus);
+        });
+
+        $(document).ready(function () {
+            function updateData() {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'get-realtime-data' course_id=course.id %}",
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('Received data:', data);
+    
+                        $('#course_code').text(data.course_code);
+                        $('#course_name').text(data.course_name);
+    
+                        var table = $('#tlect').DataTable();
+                        table.clear().draw();
+    
+                        if (data.attendance_record && data.attendance_record.length) {
+                            for (var i = 0; i < data.attendance_record.length; i++) {
+                                var row = data.attendance_record[i];
+                                table.row.add([
+                                    i + 1,
+                                    row.student_id,
+                                    row.name,
+                                    '<select class="form-select text-white-dark status-dropdown" data-student-id="' + row.student_id + '" data-timestamp="' + row.timestamp + '">' +
+                                        '<option value="absent" ' + (row.status === 'absent' ? 'selected' : '') + '>Absent</option>' +
+                                        '<option value="attend" ' + (row.status === 'present' ? 'selected' : '') + '>Present</option>' +
+                                        '<option value="mc" ' + (row.status === 'mc' ? 'selected' : '') + '>MC</option>' +
+                                    '</select>'
+                                ]).draw(false);
+                            }
+                        } else {
+                            console.log('No attendance records found in data:', data);
+                        }
+                    },
+                    error: function (error) {
+                        console.log('Error updating data:', error);
+                    }
+                });
+            }
+            // Initialize DataTable
+            var table = $('#tlect').DataTable({
+                "searching": false
+            });
+            // Update data every 10 seconds 
+            setInterval(updateData, 10000);
+        });
+
+        function stop(){
+            $.ajax({
+                type: "GET",
+                url: "http://raspberrypi.local:5000/face/stop",
+         
+            });
+    }
+   
+    </script>
+{% endblock javascript %}
+{% endblock content %}

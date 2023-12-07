@@ -31,14 +31,28 @@ def detect(request,name):
     student=Student.objects.get(student_id=name)
     course=Course.objects.get(id=course_id)
     
-    timestamp = timezone.now()
-    exist=Attendance.objects.filter(student=student,course=course,  timestamp__date=timestamp.date()).exists()
-    obj = Attendance.objects.filter(student=student,course=course, timestamp__date=timestamp.date()).values_list("id")
-    print('id',obj)
+    utc_now = timezone.now()
+    
+    local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+
+    # utc_now = datetime.utcnow()
+    local_now = utc_now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    
+    # start of day & end of day in GMT+8 (local timezone)
+    start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
+    
+    #convert GMT+8 to utc timezone  
+    start_day_utc = start_day.astimezone(timezone.utc)
+    end_day_utc = end_day.astimezone(timezone.utc)
+    
+    exist=Attendance.objects.filter(student=student,course=course,  timestamp__range=(start_day_utc, end_day_utc)).exists()
+    obj = Attendance.objects.filter(student=student,course=course, timestamp__range=(start_day_utc, end_day_utc)).values_list("timestamp")[0]
+    print('id',obj[0])
     
     if exist:
         
-        att_obj=Attendance.objects.filter(student=student,course=course,timestamp__date=timestamp.date() ).values_list("timestamp","status")[0]
+        att_obj=Attendance.objects.filter(student=student,course=course,timestamp__range=(start_day_utc, end_day_utc)).values_list("timestamp","status")[0]
         datetime=att_obj[0]
         status=att_obj[1]
         
@@ -60,6 +74,7 @@ def detect(request,name):
             print("Student logged")
         else:
             if status == 'absent':
+                print("update db")
                 Attendance.objects.filter(student=student,course=course,timestamp=datetime).update(status='present')
     else:
         #Attendance.objects.create(student=student,course=course,status="present")

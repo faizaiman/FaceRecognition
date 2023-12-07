@@ -5,29 +5,15 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
-from .decorators import student_required,lecturer_required
 from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.core import serializers
 from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance
 from django.db.models import Count,F,ExpressionWrapper, fields
 from django.db.models.functions import TruncMonth,TruncDate
+from django.views.decorators.http import require_POST
 from datetime import datetime,timedelta
-
-# from main.models import UserForm, User, Attendance, UserTask, Task
-# from main import trainer, face_recognizer, photos_path, utility
-# from main import task
-
-
-from math import ceil
-import base64
-import os
-import time
-import datetime
-from json import loads
-from _thread import start_new_thread
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+import pytz
 
 # def handle500(request, *args, **argv):
 #     response = render(request,'pages/error500.html')
@@ -582,7 +568,7 @@ def studentAttendance(request):
 def studentStatistic(request,course_id):
     
     if not request.user.is_authenticated:
-        return redirect('login')  # Adjust 'login' to your actual login URL pattern
+        return redirect('login')  
 
 
     # Get timetable and attendance information for the specified course
@@ -611,3 +597,92 @@ def studentStatistic(request,course_id):
     }
 
     return render(request,'student/attendanceStatistic.html',context)
+
+def takingAttendance(request,course_id):
+    if not request.user.is_authenticated:
+        return redirect('login')  
+    
+    local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+
+    utc_now = datetime.utcnow()
+    local_now = utc_now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    
+    # start of day & end of day in GMT+8 (local timezone)
+    start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
+    
+    #convert GMT+8 to utc timezone  
+    start_day_utc = start_day.astimezone(timezone.utc)
+    end_day_utc = end_day.astimezone(timezone.utc)
+    
+    course= get_object_or_404(Course,pk=course_id)
+    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day_utc, end_day_utc))
+    # dd(attendance_record)
+    
+    return render(request,'lecturer/takingAttendance.html',{'course':course,'attendance_record':attendance_record})
+
+
+def get_realtime_data(request, course_id):
+    
+    local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
+
+    utc_now = datetime.utcnow()
+    local_now = utc_now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    
+    # start of day & end of day in GMT+8 (local timezone)
+    start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
+    
+    #convert GMT+8 to utc timezone  
+    start_day_utc = start_day.astimezone(timezone.utc)
+    end_day_utc = end_day.astimezone(timezone.utc)
+    
+    course= get_object_or_404(Course,pk=course_id)
+    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day_utc, end_day_utc))
+    # dd(attendance_record)
+
+    data = {
+        'course_code': course.course_code,
+        'course_name': course.course_name,
+        'attendance_record': [
+            {'student_id': record.student.student_id, 'name': f'{record.student.first_name} {record.student.last_name}', 'status': record.status,'timestamp':record.timestamp}
+            for record in attendance_record
+        ],
+    }
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def update_status(request):
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id', '')
+        timestamp_str = request.POST.get('timestamp', '')
+        new_status = request.POST.get('status', '')
+        
+        print("Received Data - Student ID:", student_id, "Timestamp:", timestamp_str, "New Status:", new_status)
+
+        try:
+            # Convert timestamp to datetime object
+            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+            # Assuming the timestamp is in a specific time zone (adjust as needed)
+            local_tz = pytz.timezone('Asia/Kuala_Lumpur')
+            timestamp_localized = local_tz.localize(timestamp)
+
+            # Convert to UTC
+            timestamp_utc = timestamp_localized.astimezone(pytz.utc)
+
+            # Assuming the timestamp is in the format "YYYY-MM-DD HH:mm:ss"
+            attendance_obj = Attendance.objects.get(student_id=student_id, timestamp=timestamp_utc)
+            
+            # Update the status
+            attendance_obj.status = new_status
+            attendance_obj.save()
+
+            return JsonResponse({'success': True})
+        except Attendance.DoesNotExist:
+            return JsonResponse({'error': 'Attendance record not found'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+
+    return JsonResponse({'error': 'Invalid request method'})

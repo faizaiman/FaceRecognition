@@ -36,7 +36,13 @@ urlpatterns = [
     path('attendanceReport/<str:date>/<int:course_id>/',views.attendanceReport,name='attendance-report'),
     path('studentAttendance',views.studentAttendance,name='student-attendance'),    
     path('attendanceStatistic/<int:course_id>/',views.studentStatistic,name='attendance-statistic'),
+    path('takingAttendance/courseId=<int:course_id>/', views.takingAttendance, name='taking-attendance'),
+    path('get_realtime_data/courseId=<int:course_id>/', views.get_realtime_data, name='get-realtime-data'),
+    path('update-status/', views.update_status, name='update-status'),
 
+    
+    
+    
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
     path('recognize',files.recognize,name ="recognize"),

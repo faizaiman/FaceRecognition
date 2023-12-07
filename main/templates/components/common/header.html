@@ -1,4 +1,5 @@
 {% load static %}
+
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <!-- Bootstrap & Popper -->
@@ -135,5 +136,27 @@
 
 </header>
 <script>
-   
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("header", () => ({
+            init() {
+                const selector = document.querySelector('ul.horizontal-menu a[href="' + window
+                    .location.pathname + '"]');
+                if (selector) {
+                    selector.classList.add('active');
+                    const ul = selector.closest('ul.sub-menu');
+                    if (ul) {
+                        let ele = ul.closest('li.menu').querySelectorAll('.nav-link');
+                        if (ele) {
+                            ele = ele[0];
+                            setTimeout(() => {
+                                ele.classList.add('active');
+                            });
+                        }
+                    }
+                }
+            },
+
+         
+        }));
+    });
 </script>
