@@ -3,19 +3,10 @@
 
 {% block content %}
 
-{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
-{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
-<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
- {% endcomment %}
+
  
 <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
-
-
-
 
     <ul class="flex space-x-2 rtl:space-x-reverse">
         <li>
@@ -50,7 +41,7 @@
         <button type="button" class="btn btn-danger rounded-full btn-sm" onClick="javascript:stop();">
             Stop
         </button>
-        <table id="tlect" class="table-hover">
+        <table id="tAttendance" class="table-hover">
             <thead>
                 <tr>
                     <th>#</th>
@@ -68,7 +59,7 @@
                     <td>
                         <select class="form-select text-white-dark status-dropdown" data-student-id="{{ session.student.user_id }}" data-timestamp="{{ session.timestamp|date:"Y-m-d H:i:s" }}">
                             <option value="absent" {% if session.status == 'absent' %}selected{% endif %}>Absent</option>
-                            <option value="attend" {% if session.status == 'present' %}selected{% endif %}>Present</option>
+                            <option value="present" {% if session.status == 'present' %}selected{% endif %}>Present</option>
                             <option value="mc" {% if session.status == 'mc' %}selected{% endif %}>MC</option>
                         </select>
                     </td>
@@ -90,7 +81,7 @@
                     'student_id': studentId,
                     'timestamp': timestamp,
                     'status': newStatus,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',  // Include CSRF token
+                    'csrfmiddlewaretoken': '{{ csrf_token }}', 
                 },
                 success: function (response) {
                     console.log('Status updated successfully:', response);
@@ -100,8 +91,6 @@
                 }
             });
         }
-
-        // Your other JavaScript code
 
         $('body').on('change', '.status-dropdown', function () {
             var studentId = $(this).data('student-id');
@@ -128,13 +117,15 @@
                         if (data.attendance_record && data.attendance_record.length) {
                             for (var i = 0; i < data.attendance_record.length; i++) {
                                 var row = data.attendance_record[i];
+                                var formattedTimestamp = new Date(row.timestamp).toISOString().slice(0, 19).replace('T', ' ');
+
                                 table.row.add([
                                     i + 1,
                                     row.student_id,
                                     row.name,
-                                    '<select class="form-select text-white-dark status-dropdown" data-student-id="' + row.student_id + '" data-timestamp="' + row.timestamp + '">' +
+                                    '<select class="form-select text-white-dark status-dropdown" data-student-id="' + row.user_id + '" data-timestamp="' + formattedTimestamp + '">' +
                                         '<option value="absent" ' + (row.status === 'absent' ? 'selected' : '') + '>Absent</option>' +
-                                        '<option value="attend" ' + (row.status === 'present' ? 'selected' : '') + '>Present</option>' +
+                                        '<option value="present" ' + (row.status === 'present' ? 'selected' : '') + '>Present</option>' +
                                         '<option value="mc" ' + (row.status === 'mc' ? 'selected' : '') + '>MC</option>' +
                                     '</select>'
                                 ]).draw(false);
@@ -149,7 +140,7 @@
                 });
             }
             // Initialize DataTable
-            var table = $('#tlect').DataTable({
+            var table = $('#tAttendance').DataTable({
                 "searching": false
             });
             // Update data every 10 seconds 

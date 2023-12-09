@@ -501,6 +501,7 @@ def attendanceSessions(request, id):
         .order_by('date')
     )
             
+    
     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
 
     total_class_sessions = attendance_sessions.count()
@@ -544,7 +545,6 @@ def studentAttendance(request):
         timetable_entries = Timetable.objects.filter(course=course).select_related('lecturer')
         attendance_entries = Attendance.objects.filter(student__user=request.user, course=course)
 
-        # Calculate the total session count based on unique dates from attendance entries
         total_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
 
         present_sessions = attendance_entries.filter(status='present').count()
@@ -645,7 +645,7 @@ def get_realtime_data(request, course_id):
         'course_code': course.course_code,
         'course_name': course.course_name,
         'attendance_record': [
-            {'student_id': record.student.student_id, 'name': f'{record.student.first_name} {record.student.last_name}', 'status': record.status,'timestamp':record.timestamp}
+            {'student_id': record.student.student_id, 'name': f'{record.student.first_name} {record.student.last_name}', 'status': record.status,'timestamp':record.timestamp,'user_id':record.student.user_id}
             for record in attendance_record
         ],
     }
@@ -660,21 +660,23 @@ def update_status(request):
         new_status = request.POST.get('status', '')
         
         print("Received Data - Student ID:", student_id, "Timestamp:", timestamp_str, "New Status:", new_status)
-
+        
+     
+        # date=TruncDate('timestamp')
         try:
-            # Convert timestamp to datetime object
-            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-
-            # Assuming the timestamp is in a specific time zone (adjust as needed)
-            local_tz = pytz.timezone('Asia/Kuala_Lumpur')
-            timestamp_localized = local_tz.localize(timestamp)
-
-            # Convert to UTC
-            timestamp_utc = timestamp_localized.astimezone(pytz.utc)
-
-            # Assuming the timestamp is in the format "YYYY-MM-DD HH:mm:ss"
-            attendance_obj = Attendance.objects.get(student_id=student_id, timestamp=timestamp_utc)
             
+            # Convert the string to a datetime object
+            datetime_obj = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+
+            # Extract the date
+            date = datetime_obj.date()
+
+     
+            # Assuming the timestamp is in the format "YYYY-MM-DD HH:mm:ss"
+            attendance_obj = Attendance.objects.get(student_id=student_id, timestamp__date=date)
+            print('Student ID:', attendance_obj.student_id)
+            print('Timestamp:', attendance_obj.timestamp)
+            print('Status:', attendance_obj.status)
             # Update the status
             attendance_obj.status = new_status
             attendance_obj.save()
