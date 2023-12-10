@@ -36,16 +36,12 @@
                         <h6 class="text-lg font-bold mb-5">General Information</h6>
                         <div class="flex flex-col sm:flex-row">
                             <div class="ltr:sm:mr-4 rtl:sm:ml-4 w-full sm:w-2/12 mb-5">
-                                {%if request.user.profile_picture == 'default_avatar.png'  %}
-                                <img src="{% static 'assets/images/default_avatar.png' %}" alt="image" class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto" />
-                            {% elif request.user.profile_picture.url != 'default_avatar.png' %}
-                
-                                <img src="
-                                {{ user.profile_picture.url }}"
-                                
-                                alt="image" 
-                                class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto" />
-        
+                            {%if request.user.profile_picture == 'default_avatar.png'  %}
+                            <img class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto" src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" />                                       
+                            {% elif request.user.profile_picture.url  is None%}
+                                <img src=" {{ user.profile_picture.url }}" alt="image"  class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto"  />
+                            {% else %}
+                            <img class="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover mx-auto" src="{% static 'assets/images/profile_images/default_avatar.png' %}" alt="image" />                                       
                             {% endif %}
                               
                             </div>

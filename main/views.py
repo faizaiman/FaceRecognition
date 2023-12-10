@@ -688,3 +688,10 @@ def update_status(request):
             return JsonResponse({'error': str(e)})
 
     return JsonResponse({'error': 'Invalid request method'})
+
+def studentUploadImages(request):
+    if not request.user.is_authenticated:
+        return redirect('login')  
+
+ 
+    return render(request,'student/studentImages.html')

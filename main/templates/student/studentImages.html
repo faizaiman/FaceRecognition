@@ -15,6 +15,25 @@
     </li>
 </ul>
 <br>
+
+<div class="panel">
+    <h1 class="font-semibold text-lg dark:text-white-light mb-5">Upload Images for Face Recognition Attendance</h1>
+    <p class="font-bold">
+        Please follow these simple steps to complete the upload process:
+      </p>
+  
+      <ul>
+        <li>1. Ensure your face is well-lit and clearly visible in the images you upload.</li>
+        <li>2. Click the "Choose File" button below to select one or more images from your device.</li>
+        <li>3. Click the "Upload" button to submit your images securely.</li>
+        <li>4. Wait for the confirmation message indicating the successful upload of your images.</li>
+      </ul>
+      <br>
+      <p>
+        Your uploaded images will be used solely for the purpose of facial recognition during attendance tracking.
+      </p>
+</div>
+<br>
 <div class="panel">
     <form id ="form"class="border border-[#ebedf2] dark:border-[#191e3a] rounded-md p-4 mb-5 bg-white dark:bg-[#0e1726]" method="POST" enctype="multipart/form-data" >
         {% csrf_token %}
@@ -28,16 +47,6 @@
     </form>
 </div>
 
-
-
-<script>
-    new FileUploadWithPreview.FileUploadWithPreview('profile_picture', {
-        images: {
-            baseImage: "{% static 'assets/images/file-preview.svg' %}",
-            backgroundImage: '',
-        },
-    });
-</script>
 
 {% endblock %}
 

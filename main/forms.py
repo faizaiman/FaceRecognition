@@ -108,6 +108,7 @@ class UploadImage(forms.ModelForm):
     class Meta:
         model = User
         fields=['profile_picture']
+        
     # @transaction.atomic
     # def save(self,commit = True):
     #     user = super().save(commit=False)

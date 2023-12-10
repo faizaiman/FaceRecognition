@@ -39,7 +39,7 @@ urlpatterns = [
     path('takingAttendance/courseId=<int:course_id>/', views.takingAttendance, name='taking-attendance'),
     path('get_realtime_data/courseId=<int:course_id>/', views.get_realtime_data, name='get-realtime-data'),
     path('update-status/', views.update_status, name='update-status'),
-
+    path('studentUploadImages/',views.studentUploadImages,name='student-images'),
     
     
     

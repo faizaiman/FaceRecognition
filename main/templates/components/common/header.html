@@ -71,14 +71,12 @@
                         <span>
                             {%if request.user.profile_picture == 'default_avatar.png'  %}
                                 <img class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" />                                       
-                            {% elif request.user.profile_picture.url != 'default_avatar.png' %}
-                
-                                <img src="
-                                {{ user.profile_picture.url }}"
-                                
-                                alt="image" 
-                                class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" />
-        
+                            {% elif request.user.profile_picture.url  is None%}
+                                <img src=" {{ user.profile_picture.url }}" alt="image"  class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" />
+                            {% else %}
+                            <img class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="{% static 'assets/images/profile_images/default_avatar.png' %}" alt="image" />                                       
+                            {% comment %} <img src="{{ user.profile_picture.url|default:'assets/images/profile_images/default_avatar.png' }}" alt="User Profile Picture" class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" /> {% endcomment %}
+
                             {% endif %}
                         
                         </span>
@@ -90,16 +88,14 @@
                             <div class="flex items-center px-4 py-4">
                                 <div class="flex-none">
                                     {%if request.user.profile_picture == 'default_avatar.png'  %}
-                                    <img class="rounded-md w-10 h-10 object-cover" src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" />
-                                       {% elif request.user.profile_picture.url != 'default_avatar.png' %}
-                
-                                       <img src="
-                                      {{ user.profile_picture.url }}"
-                                        
-                                        alt="image" 
-                                        class="rounded-md w-10 h-10 object-cover" />
-                
-                                        {% endif %}
+                                <img class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" />                                       
+                                {% elif request.user.profile_picture.url  is None%}
+                                    <img src=" {{ user.profile_picture.url }}" alt="image"  class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" />
+                                {% else %}
+                                <img class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" src="{% static 'assets/images/profile_images/default_avatar.png' %}" alt="image" />                                       
+                                {% comment %} <img src="{{ user.profile_picture.url|default:'assets/images/profile_images/default_avatar.png' }}" alt="User Profile Picture" class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" /> {% endcomment %}
+
+                                {% endif %}
                                 </div>
                                 <div class="ltr:pl-4 rtl:pr-4">
                                     <h4 class="text-base">{{user}}
