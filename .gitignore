@@ -1,0 +1,3 @@
+
+*.pyc
+main/migrations/__pycache__
