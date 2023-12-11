@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm
-from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm,DatasetImageForm
+from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance,DatasetImages
 from django.db.models import Count,F,ExpressionWrapper, fields
 from django.db.models.functions import TruncMonth,TruncDate
 from django.views.decorators.http import require_POST
@@ -295,49 +295,6 @@ def deleteCourse(request,id):
     course.delete()
     return redirect(viewCourse)
 # end of delete course
-
-#upload image
-def uploadImage(request):
-    if not request.user.is_authenticated:
-        return redirect(login)
-    if request.method == 'POST' and request.FILES['profile_picture']:
-        
-        form = UploadImage(request.POST,request.FILES)
-      #get login user 
-        currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
-        if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
-            getUserLecturer = get_object_or_404(Lecturer,user_id=request.user.id) #get data from table main_lecturer
-        elif currentUser.is_student ==True: #is student 
-            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
-        else:
-            currentUser= get_user_model().objects.get(id=request.user.id) #get admin profile
-            getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
-        
-        if form.is_valid():
-            
-                if currentUser.is_student ==True: #check if current user is student or not / else current user is lecturer/admin
-                        currentUser.profile_picture=request.FILES['profile_picture']
-                        getUserStudent.profile_picture=request.FILES['profile_picture']
-                        image=form.cleaned_data['profile_picture']
-                        print(form)
-                        getUserStudent.save()
-                
-        
-                currentUser.profile_picture=request.FILES['profile_picture']
-                image=form.cleaned_data['profile_picture']
-                print(form)
-                currentUser.save()
-                return redirect(profile)
-        else:
-            print(form)
-        
-        form = UploadImage()
-
-   
-    return render(request,"users/uploadImage.html",{'form':UploadImage()})
-# end of uploadImage
-
-
 
 # add lecturer
 def addLecturer(request):
@@ -689,9 +646,75 @@ def update_status(request):
 
     return JsonResponse({'error': 'Invalid request method'})
 
+
+#upload image
+def uploadImage(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST' and request.FILES['profile_picture']:
+        
+        form = UploadImage(request.POST,request.FILES)
+      #get login user 
+        currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
+        if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
+            getUserLecturer = get_object_or_404(Lecturer,user_id=request.user.id) #get data from table main_lecturer
+        elif currentUser.is_student ==True: #is student 
+            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
+        else:
+            currentUser= get_user_model().objects.get(id=request.user.id) #get admin profile
+            getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
+        
+        if form.is_valid():
+            
+                if currentUser.is_student ==True: #check if current user is student or not / else current user is lecturer/admin
+                        currentUser.profile_picture=request.FILES['profile_picture']
+                        getUserStudent.profile_picture=request.FILES['profile_picture']
+                        image=form.cleaned_data['profile_picture']
+                        print(form)
+                        getUserStudent.save()
+                
+        
+                currentUser.profile_picture=request.FILES['profile_picture']
+                image=form.cleaned_data['profile_picture']
+                print(form)
+                currentUser.save()
+                return redirect(profile)
+        else:
+            print(form)
+        
+        form = UploadImage()
+
+   
+    return render(request,"users/uploadImage.html",{'form':UploadImage()})
+# end of uploadImage
+
+
+
 def studentUploadImages(request):
     if not request.user.is_authenticated:
         return redirect('login')  
+    
+    
+    form = DatasetImageForm()
+    if request.method =='POST':
 
- 
-    return render(request,'student/studentImages.html')
+        form = DatasetImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
+            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
+            print('student:',getUserStudent)
+            images = request.FILES.getlist('image')
+            for image in images:
+                DatasetImages.objects.create(student=getUserStudent, image=image)
+            
+            
+            messages.success(request,f'Images sucessfully uploaded.')
+            return redirect(studentUploadImages)
+
+            
+        else:
+            form = DatasetImageForm()
+            messages.error(request,f'Failed to upload images')
+
+        
+    return render(request,'student/studentImages.html',{'form':form})

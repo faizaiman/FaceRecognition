@@ -3,7 +3,7 @@ from django.db import transaction
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
-from main.models import User, Profile,Student,Lecturer,Course,Timetable
+from main.models import User, Profile,Student,Lecturer,Course,Timetable, DatasetImages
 from django.forms import ModelForm
 
 
@@ -144,3 +144,7 @@ class UpdateProfileForm(forms.ModelForm):
         fields = ['avatar']
 
     
+class DatasetImageForm(forms.ModelForm):
+    class Meta:
+        model= DatasetImages
+        fields = ['image']
