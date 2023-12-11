@@ -45,6 +45,7 @@ urlpatterns = [
     
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
+    path('trainfisher',files.train_fisher,name="train-fisher"),
     path('recognize',files.recognize,name ="recognize"),
     # path('detect/<name>/',files.detect,name="detect"),
     path('detect/<name>/',files.detect,name="detect"),

@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm
-from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm,DatasetImageForm
+from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance,DatasetImages
 from django.db.models import Count,F,ExpressionWrapper, fields
 from django.db.models.functions import TruncMonth,TruncDate
 from django.views.decorators.http import require_POST
@@ -88,6 +88,24 @@ def logout(request):
     messages.info(request,f'successful log out')
     return redirect(login)
 # end of logout
+# add lecturer
+def addLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST':
+        form = LecturerSignUpForm(request.POST)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request,f'Success register new lecturer')
+            return redirect(viewLecturer)
+        else:
+            messages.error(request,f'Fail to register new lecturer')
+            print(form)
+            form = LecturerSignUpForm()
+            
+    return render(request,"lecturer/addLecturer.html",{'form':LecturerSignUpForm()})
+# end of add lecturer
 
 # student Register
 def register(request):
@@ -296,67 +314,6 @@ def deleteCourse(request,id):
     return redirect(viewCourse)
 # end of delete course
 
-#upload image
-def uploadImage(request):
-    if not request.user.is_authenticated:
-        return redirect(login)
-    if request.method == 'POST' and request.FILES['profile_picture']:
-        
-        form = UploadImage(request.POST,request.FILES)
-      #get login user 
-        currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
-        if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
-            getUserLecturer = get_object_or_404(Lecturer,user_id=request.user.id) #get data from table main_lecturer
-        elif currentUser.is_student ==True: #is student 
-            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
-        else:
-            currentUser= get_user_model().objects.get(id=request.user.id) #get admin profile
-            getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
-        
-        if form.is_valid():
-            
-                if currentUser.is_student ==True: #check if current user is student or not / else current user is lecturer/admin
-                        currentUser.profile_picture=request.FILES['profile_picture']
-                        getUserStudent.profile_picture=request.FILES['profile_picture']
-                        image=form.cleaned_data['profile_picture']
-                        print(form)
-                        getUserStudent.save()
-                
-        
-                currentUser.profile_picture=request.FILES['profile_picture']
-                image=form.cleaned_data['profile_picture']
-                print(form)
-                currentUser.save()
-                return redirect(profile)
-        else:
-            print(form)
-        
-        form = UploadImage()
-
-   
-    return render(request,"users/uploadImage.html",{'form':UploadImage()})
-# end of uploadImage
-
-
-
-# add lecturer
-def addLecturer(request):
-    if not request.user.is_authenticated:
-        return redirect(login)
-    if request.method == 'POST':
-        form = LecturerSignUpForm(request.POST)
-        
-        if form.is_valid():
-            form.save()
-            messages.success(request,f'Success register new lecturer')
-            return redirect(viewLecturer)
-        else:
-            messages.error(request,f'Fail to register new lecturer')
-            print(form)
-            form = LecturerSignUpForm()
-            
-    return render(request,"lecturer/addLecturer.html",{'form':LecturerSignUpForm()})
-# end of add lecturer
 
 # view lecturer
 def viewLecturer(request):
@@ -455,58 +412,57 @@ def viewAttendance(request):
     
     return render(request,'lecturer/attendance.html',{'lect_tb':lect_timetable})
 
-# def attendanceSessions(request,id):
-#     if not request.user.is_authenticated:
-#         return redirect(login)
-    
-    
-#     attendance_sessions =( 
-#                             Attendance.objects
-#                     .filter(course_id=id)
-#                     .select_related('course__timetable')
-#                     .annotate(date=TruncDate('timestamp'))
-#                     .values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime','course_id')
-#                     .annotate(session_count=Count('id'))
-#                     .order_by('date')
-#                           )
-    
-#     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
-
-#     total_class_sessions = attendance_sessions.count()
-    
-    
-#     return render(request,'lecturer/attendance_sessions.html',{'attend_sessions':attendance_sessions,'class_info':class_info,'total_session':total_class_sessions})
-
-
-def attendanceSessions(request, id):
+def attendanceSessions(request,id):
     if not request.user.is_authenticated:
         return redirect(login)
     
-    attendance_sessions = (
-        Attendance.objects
-        .filter(course_id=id)
-        .select_related('course__timetable')
-        .annotate(date=TruncDate('timestamp'))
-        .values(
-            'date', 
-            'course__timetable__DayOfTheWeek', 
-            'course__timetable__StartTime', 
-            'course__timetable__EndTime',
-            'course_id'
-        )
-        .annotate(
-            next_date=ExpressionWrapper(F('date') + timedelta(days=1), output_field=fields.DateField()),
-            session_count=Count('id')
-        )
-        .order_by('date')
-    )
-            
+    
+    attendance_sessions =( 
+                            Attendance.objects
+                    .filter(course_id=id)
+                    .select_related('course__timetable')
+                    .annotate(date=TruncDate('timestamp'))
+                    .values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime','course_id')
+                    .annotate(session_count=Count('id'))
+                    .order_by('date')
+                          )
     
     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
 
     total_class_sessions = attendance_sessions.count()
     
-    return render(request, 'lecturer/attendance_sessions.html', {'attend_sessions': attendance_sessions, 'class_info': class_info, 'total_session': total_class_sessions})
+    
+    return render(request,'lecturer/attendance_sessions.html',{'attend_sessions':attendance_sessions,'class_info':class_info,'total_session':total_class_sessions})
+
+
+# def attendanceSessions(request, id):
+#     if not request.user.is_authenticated:
+#         return redirect(login)
+    
+#     attendance_sessions = (
+#         Attendance.objects
+#         .filter(course_id=id)
+#         .select_related('course__timetable')
+#         .annotate(date=TruncDate('timestamp'))
+#         .values(
+#             'date', 
+#             'course__timetable__DayOfTheWeek', 
+#             'course__timetable__StartTime', 
+#             'course__timetable__EndTime',
+#             'course_id'
+#         )
+#         .annotate(
+#             session_count=Count('id')
+#         )
+#         .order_by('date')
+#     )
+            
+    
+#     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=id)
+
+#     total_class_sessions = attendance_sessions.count()
+    
+#     return render(request, 'lecturer/attendance_sessions.html', {'attend_sessions': attendance_sessions, 'class_info': class_info, 'total_session': total_class_sessions})
 
 
 
@@ -518,14 +474,10 @@ def attendanceReport(request,date,course_id):
         Attendance.objects
         .filter(timestamp__date=date, course_id=course_id)
         .select_related('student')
-        .annotate(
-            next_date=ExpressionWrapper(F('timestamp') + timedelta(days=1), output_field=fields.DateTimeField())
-        )
     )
-    next_date = attendance_data.first().next_date
     course_info = Course.objects.values('course_code', 'course_name').get(id=course_id)
     total_absent_students = attendance_data.filter(status='absent').count()
-    return render(request,'lecturer/attendance_report.html',{'attendance_data':attendance_data,'date':next_date,'course_info':course_info,'total_absent':total_absent_students})
+    return render(request,'lecturer/attendance_report.html',{'attendance_data':attendance_data,'dates':date,'course_info':course_info,'total_absent':total_absent_students})
 
 
 
@@ -586,7 +538,7 @@ def studentStatistic(request,course_id):
     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=course_id)
 
     # get attendance session by course
-    attend_sessions = attendance_entries.annotate(date=TruncDate(F('timestamp') + timedelta(days=1))).values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime', 'status').order_by('date')
+    attend_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime', 'status').order_by('date')
 
     context = {
         'class_info': class_info,
@@ -605,18 +557,20 @@ def takingAttendance(request,course_id):
     local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
 
     utc_now = datetime.utcnow()
-    local_now = utc_now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    local_now = datetime.now()
     
     # start of day & end of day in GMT+8 (local timezone)
     start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
-    
+
+    print("GMT8 Start Day:",start_day,"End Day:",end_day)
+
     #convert GMT+8 to utc timezone  
-    start_day_utc = start_day.astimezone(timezone.utc)
-    end_day_utc = end_day.astimezone(timezone.utc)
+    # start_day_utc = start_day.astimezone(timezone.utc)
+    # end_day_utc = end_day.astimezone(timezone.utc)
     
     course= get_object_or_404(Course,pk=course_id)
-    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day_utc, end_day_utc))
+    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day, end_day))
     # dd(attendance_record)
     
     return render(request,'lecturer/takingAttendance.html',{'course':course,'attendance_record':attendance_record})
@@ -627,25 +581,31 @@ def get_realtime_data(request, course_id):
     local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
 
     utc_now = datetime.utcnow()
-    local_now = utc_now.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    local_now = datetime.now()
     
     # start of day & end of day in GMT+8 (local timezone)
     start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
     end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
     
+    
     #convert GMT+8 to utc timezone  
-    start_day_utc = start_day.astimezone(timezone.utc)
-    end_day_utc = end_day.astimezone(timezone.utc)
+    # start_day_utc = start_day.astimezone(timezone.utc)
+    # end_day_utc = end_day.astimezone(timezone.utc)
     
     course= get_object_or_404(Course,pk=course_id)
-    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day_utc, end_day_utc))
+    attendance_record = Attendance.objects.filter(course=course, timestamp__range=(start_day, end_day))
     # dd(attendance_record)
 
     data = {
         'course_code': course.course_code,
         'course_name': course.course_name,
+        'course_id':course.id,
         'attendance_record': [
-            {'student_id': record.student.student_id, 'name': f'{record.student.first_name} {record.student.last_name}', 'status': record.status,'timestamp':record.timestamp,'user_id':record.student.user_id}
+            {'student_id': record.student.student_id,
+             'name': f'{record.student.first_name} {record.student.last_name}', 
+             'status': record.status,
+             'timestamp':record.timestamp,
+             'user_id':record.student.user_id}
             for record in attendance_record
         ],
     }
@@ -658,26 +618,37 @@ def update_status(request):
         student_id = request.POST.get('student_id', '')
         timestamp_str = request.POST.get('timestamp', '')
         new_status = request.POST.get('status', '')
+        course_id = request.POST.get('courseId','')
         
-        print("Received Data - Student ID:", student_id, "Timestamp:", timestamp_str, "New Status:", new_status)
+        print("Received Data - Student ID:", student_id, "Timestamp:", timestamp_str, "New Status:", new_status,"Course ID",course_id)
         
-     
+
         # date=TruncDate('timestamp')
         try:
             
+            # local_now = datetime.now()
+            # start_day = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+            # end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
+    
+           
             # Convert the string to a datetime object
             datetime_obj = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+            start_day = datetime_obj.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_day = start_day + timedelta(days=1) - timedelta(microseconds=1)
+            print ('start day',start_day,"end day",end_day)
+            
 
             # Extract the date
             date = datetime_obj.date()
+            # tz_kl = pytz.timezone('Asia/Kuala_Lumpur')
+            # kl_time = date.replace(tzinfo=pytz.utc).astimezone(tz_kl)
+            # print ('date',kl_time)
 
-     
             # Assuming the timestamp is in the format "YYYY-MM-DD HH:mm:ss"
-            attendance_obj = Attendance.objects.get(student_id=student_id, timestamp__date=date)
-            print('Student ID:', attendance_obj.student_id)
-            print('Timestamp:', attendance_obj.timestamp)
-            print('Status:', attendance_obj.status)
+            attendance_obj = Attendance.objects.get(student_id=student_id, timestamp__date=date, course_id = course_id)
+            print('Search Data From DB - Student_id:',attendance_obj.student_id,"Timestamp:",attendance_obj.timestamp,'Status',attendance_obj.status,'course',attendance_obj.course_id)
             # Update the status
+        
             attendance_obj.status = new_status
             attendance_obj.save()
 
@@ -689,9 +660,75 @@ def update_status(request):
 
     return JsonResponse({'error': 'Invalid request method'})
 
+
+#upload image
+def uploadImage(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST' and request.FILES['profile_picture']:
+        
+        form = UploadImage(request.POST,request.FILES)
+      #get login user 
+        currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
+        if currentUser.is_lecturer ==True: #check if current user is lecturer or not/else current user is student
+            getUserLecturer = get_object_or_404(Lecturer,user_id=request.user.id) #get data from table main_lecturer
+        elif currentUser.is_student ==True: #is student 
+            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
+        else:
+            currentUser= get_user_model().objects.get(id=request.user.id) #get admin profile
+            getUserAdmin= get_user_model().objects.get(id=request.user.id) #get login user 
+        
+        if form.is_valid():
+            
+                if currentUser.is_student ==True: #check if current user is student or not / else current user is lecturer/admin
+                        currentUser.profile_picture=request.FILES['profile_picture']
+                        getUserStudent.profile_picture=request.FILES['profile_picture']
+                        image=form.cleaned_data['profile_picture']
+                        print(form)
+                        getUserStudent.save()
+                
+        
+                currentUser.profile_picture=request.FILES['profile_picture']
+                image=form.cleaned_data['profile_picture']
+                print(form)
+                currentUser.save()
+                return redirect(profile)
+        else:
+            print(form)
+        
+        form = UploadImage()
+
+   
+    return render(request,"users/uploadImage.html",{'form':UploadImage()})
+# end of uploadImage
+
+
+
 def studentUploadImages(request):
     if not request.user.is_authenticated:
         return redirect('login')  
+    
+    
+    form = DatasetImageForm()
+    if request.method =='POST':
 
- 
-    return render(request,'student/studentImages.html')
+        form = DatasetImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            currentUser=get_user_model().objects.get(id=request.user.id) #get login user 
+            getUserStudent = get_object_or_404(Student,user_id=request.user.id) #get data from table main_student
+            print('student:',getUserStudent)
+            images = request.FILES.getlist('image')
+            for image in images:
+                DatasetImages.objects.create(student=getUserStudent, image=image)
+            
+            
+            messages.success(request,f'Images sucessfully uploaded.')
+            return redirect(studentUploadImages)
+
+            
+        else:
+            form = DatasetImageForm()
+            messages.error(request,f'Failed to upload images')
+
+        
+    return render(request,'student/studentImages.html',{'form':form})

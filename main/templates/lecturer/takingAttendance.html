@@ -57,7 +57,10 @@
                     <td>{{ session.student.student_id }}</td>
                     <td>{{ session.student.first_name }} {{ session.student.last_name }}</td>
                     <td>
-                        <select class="form-select text-white-dark status-dropdown" data-student-id="{{ session.student.user_id }}" data-timestamp="{{ session.timestamp|date:"Y-m-d H:i:s" }}">
+                        <select class="form-select text-white-dark status-dropdown" data-student-id="{{ session.student.user_id }}" 
+                        data-timestamp="{{ session.timestamp|date:"Y-m-d H:i:s" }}"
+                        data-course-id="{{course.id}}"
+                        >
                             <option value="absent" {% if session.status == 'absent' %}selected{% endif %}>Absent</option>
                             <option value="present" {% if session.status == 'present' %}selected{% endif %}>Present</option>
                             <option value="mc" {% if session.status == 'mc' %}selected{% endif %}>MC</option>
@@ -72,7 +75,7 @@
     {% block javascript %}
     <script>
 
-        function updateStatus(studentId, timestamp, newStatus) {
+        function updateStatus(studentId, timestamp, newStatus,courseId) {
             
             $.ajax({
                 type: "POST",
@@ -81,6 +84,7 @@
                     'student_id': studentId,
                     'timestamp': timestamp,
                     'status': newStatus,
+                    'courseId':courseId,
                     'csrfmiddlewaretoken': '{{ csrf_token }}', 
                 },
                 success: function (response) {
@@ -96,7 +100,8 @@
             var studentId = $(this).data('student-id');
             var timestamp = $(this).data('timestamp');
             var newStatus = $(this).val();
-            updateStatus(studentId, timestamp, newStatus);
+            var courseId = $(this).data('course-id');
+            updateStatus(studentId, timestamp, newStatus,courseId);
         });
 
         $(document).ready(function () {
@@ -123,7 +128,10 @@
                                     i + 1,
                                     row.student_id,
                                     row.name,
-                                    '<select class="form-select text-white-dark status-dropdown" data-student-id="' + row.user_id + '" data-timestamp="' + formattedTimestamp + '">' +
+                                    '<select class="form-select text-white-dark status-dropdown" ' +
+                                    'data-student-id="' + row.user_id + '" ' +
+                                    'data-timestamp="' + formattedTimestamp + '" ' +
+                                    'data-course-id="' + row.course_id + '">' +
                                         '<option value="absent" ' + (row.status === 'absent' ? 'selected' : '') + '>Absent</option>' +
                                         '<option value="present" ' + (row.status === 'present' ? 'selected' : '') + '>Present</option>' +
                                         '<option value="mc" ' + (row.status === 'mc' ? 'selected' : '') + '>MC</option>' +
@@ -144,7 +152,7 @@
                 "searching": false
             });
             // Update data every 10 seconds 
-            setInterval(updateData, 10000);
+            setInterval(updateData, 5000);
         });
 
         function stop(){
