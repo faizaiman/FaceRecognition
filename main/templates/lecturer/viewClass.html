@@ -88,7 +88,6 @@
     });
 
     function populate(courseId){
-        console.log('populate att')
         return new Promise(function(resolve,reject){
             $.ajax({
                 type: "GET",
@@ -104,7 +103,7 @@
     }
 
     function stop(){
-        
+
             $.ajax({
                 type: "GET",
                 url: "http://raspberrypi.local:5000/face/stop",
@@ -116,7 +115,7 @@
         return new Promise(function(resolve,reject){
             $.ajax({
                 type: "GET",
-                url: "http://raspberrypi.local:5000/face/recognize?courseId=" + courseId,
+                url: "http://raspberrypi.local:5000/face/test?courseId=" + courseId,
                 success: function (result) {
                     resolve(result);
                 },
@@ -126,6 +125,25 @@
             });
         })
     }
+
+    {% comment %} function openPage(courseId){
+        var encodeCourseId = encodeURIComponent(courseId);
+        var urls = "/takingAttendance/courseId=" + encodeCourseId + "/";
+        return new Promise(function(resolve,reject){
+            $.ajax({
+
+                type:"GET",
+                url: "/takingAttendance/courseId="+courseId+"/",
+                success:function(result){
+                    resolve(result);
+                },
+                error: function(error){
+                    reject(error)
+                }
+
+            });
+        })
+    } {% endcomment %}
 
     async function takeAttendance(courseId){
         console.log('Button click takeAttendance',courseId)
@@ -137,7 +155,7 @@
 
             // 2. start taking attendance after all student taking this course populated
             // trigger pi face recognition API
-            await faceRecognize(courseId);
+            //await faceRecognize(courseId);
 
             var encodeCourseId = encodeURIComponent(courseId);
             var url = "/takingAttendance/courseId=" + encodeCourseId + "/";

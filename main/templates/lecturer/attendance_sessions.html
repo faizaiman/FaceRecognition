@@ -70,7 +70,7 @@
                         <td>{{ session.course__timetable__DayOfTheWeek }}</td>
                         <td>
                             <a href="{% url 'attendance-report' date=session.date|date:'Y-m-d' course_id=session.course_id %}" style="color: blue;">
-                                {{ session.next_date|date:"d/m/Y" }}
+                                {{ session.date|date:"d/m/Y" }}
                             </a>
                         </td>
                         <td>{{ session.course__timetable__StartTime }}</td>
