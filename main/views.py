@@ -88,6 +88,24 @@ def logout(request):
     messages.info(request,f'successful log out')
     return redirect(login)
 # end of logout
+# add lecturer
+def addLecturer(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    if request.method == 'POST':
+        form = LecturerSignUpForm(request.POST)
+        
+        if form.is_valid():
+            form.save()
+            messages.success(request,f'Success register new lecturer')
+            return redirect(viewLecturer)
+        else:
+            messages.error(request,f'Fail to register new lecturer')
+            print(form)
+            form = LecturerSignUpForm()
+            
+    return render(request,"lecturer/addLecturer.html",{'form':LecturerSignUpForm()})
+# end of add lecturer
 
 # student Register
 def register(request):
@@ -296,24 +314,6 @@ def deleteCourse(request,id):
     return redirect(viewCourse)
 # end of delete course
 
-# add lecturer
-def addLecturer(request):
-    if not request.user.is_authenticated:
-        return redirect(login)
-    if request.method == 'POST':
-        form = LecturerSignUpForm(request.POST)
-        
-        if form.is_valid():
-            form.save()
-            messages.success(request,f'Success register new lecturer')
-            return redirect(viewLecturer)
-        else:
-            messages.error(request,f'Fail to register new lecturer')
-            print(form)
-            form = LecturerSignUpForm()
-            
-    return render(request,"lecturer/addLecturer.html",{'form':LecturerSignUpForm()})
-# end of add lecturer
 
 # view lecturer
 def viewLecturer(request):

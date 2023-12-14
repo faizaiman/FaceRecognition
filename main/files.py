@@ -16,6 +16,15 @@ def train_file(request):
     train_model.train()
     return JsonResponse({'ok':'true', 'status':'200'})
 
+
+def train_fisher(request):
+    print("TRAIN FISHERFACE")
+
+    from face_trainer import train_fisherface
+    train_fisherface.train()
+    return JsonResponse({'ok':'trues', 'status':'200'})
+
+
 def recognize(request):
     try:
         url = 'http://raspberrypi.local:5000/face/recognize?course=courseid'

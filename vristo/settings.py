@@ -96,7 +96,7 @@ DATABASES = {
         
         #for macbook
         'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ftend',
+        'NAME': 'ftends',
         'USER': 'postgres',
         'PASSWORD': 'admin',
         'HOST':'localhost',

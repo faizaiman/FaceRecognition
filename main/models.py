@@ -16,7 +16,7 @@ class User(AbstractUser):
     is_lecturer = models.BooleanField(default=False)
     profile_picture = models.ImageField(upload_to='profile_picture',default='default_avatar.png')
 
-    
+
 def student_image_upload_path(instance,filename):
     student_id = instance.student.student_id
     dataset='dataset'
@@ -24,6 +24,7 @@ def student_image_upload_path(instance,filename):
     return f'{dataset}/{student_id}/{base_filename}{file_extension}'
 
 
+    
 class Student(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
     first_name=models.CharField(max_length=100)
@@ -34,11 +35,13 @@ class Student(models.Model):
     
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.student_id})"
+    
+
    
 @receiver(post_save, sender=Student)
 def create_student_folder(sender, instance, created, **kwargs):
-    if created and instance.is_student:
-        student_folder = os.path.join("face_trainer/dataset", str(instance.student.student_id))
+    if created:
+        student_folder = os.path.join("face_trainer/dataset", str(instance.student_id))
         os.makedirs(student_folder, exist_ok=True)
 
 class DatasetImages(models.Model):

@@ -12,14 +12,13 @@ class StudentSignUpForm(UserCreationForm):
     email = forms.EmailField(widget=forms.EmailInput())
     password1 = forms.CharField(widget=forms.PasswordInput())
     password2 = forms.CharField(widget=forms.PasswordInput())
-
     first_name = forms.CharField(widget=forms.TextInput())
     last_name = forms.CharField(widget=forms.TextInput())
     student_id =forms.CharField(widget=forms.TextInput())
     
     class Meta(UserCreationForm.Meta):
         model= User
-        fields= ('username','email','password1','password2','first_name','last_name')
+        fields= ('username','email','password1','password2','first_name','last_name','student_id')
     @transaction.atomic
     def save(self,commit =True):
         user = super().save(commit=False)
@@ -34,7 +33,6 @@ class LecturerSignUpForm(UserCreationForm):
     email = forms.EmailField(widget=forms.EmailInput())
     password1 = forms.CharField(widget=forms.PasswordInput())
     password2 = forms.CharField(widget=forms.PasswordInput())
-
     first_name = forms.CharField(widget=forms.TextInput())
     last_name = forms.CharField(widget=forms.TextInput())
     

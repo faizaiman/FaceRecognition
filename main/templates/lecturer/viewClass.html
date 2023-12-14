@@ -115,7 +115,7 @@
         return new Promise(function(resolve,reject){
             $.ajax({
                 type: "GET",
-                url: "http://raspberrypi.local:5000/face/test?courseId=" + courseId,
+                url: "http://raspberrypi.local:5000/face/recognize?courseId=" + courseId,
                 success: function (result) {
                     resolve(result);
                 },
@@ -155,7 +155,7 @@
 
             // 2. start taking attendance after all student taking this course populated
             // trigger pi face recognition API
-            //await faceRecognize(courseId);
+            await faceRecognize(courseId);
 
             var encodeCourseId = encodeURIComponent(courseId);
             var url = "/takingAttendance/courseId=" + encodeCourseId + "/";
