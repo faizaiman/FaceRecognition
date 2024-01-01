@@ -1,0 +1,99 @@
+
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
+<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
+ {% endcomment %}
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
+
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Attendance</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">Leave Application List</h5>
+            <table id="leave" class="table-hover ">
+                <thead >
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                     {% for leave in leaves %}
+                    <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{ leave.attendance.student }}</td>
+                    <td>{{ leave.attendance.course.course_code}} {{leave.attendance.course.course_name}}</td>
+                    <td>
+                        {% if leave.leave_type == 'mc' %}
+                            <span>Medical Leave</span>
+                        {% elif leave.leave_type == 'el' %}
+                            <span>Exemption Letter</span>
+                        {% else %}
+                            <span>{{ leave.leave_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if leave.status == 'pending' %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% elif leave.status == 'reject' %}
+                            <span class="badge bg-danger">Reject</span>
+                        {% elif leave.status == 'approve' %}
+                            <span class="badge bg-success">Approve</span>
+                        {% endif %}
+
+                    </td>
+                    <td>
+                       
+                        <a href="{% url 'approve-leave' leave.id %}">
+                            <button type="button" class="btn btn-info rounded-full btn-sm" >
+                                View
+                            <svg width="20" height="20" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="0.5" d="M2 12C2 13.6394 2.42496 14.1915 3.27489 15.2957C4.97196 17.5004 7.81811 20 12 20C16.1819 20 19.028 17.5004 20.7251 15.2957C21.575 14.1915 22 13.6394 22 12C22 10.3606 21.575 9.80853 20.7251 8.70433C19.028 6.49956 16.1819 4 12 4C7.81811 4 4.97196 6.49956 3.27489 8.70433C2.42496 9.80853 2 10.3606 2 12Z" fill="currentColor"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.25 12C8.25 9.92893 9.92893 8.25 12 8.25C14.0711 8.25 15.75 9.92893 15.75 12C15.75 14.0711 14.0711 15.75 12 15.75C9.92893 15.75 8.25 14.0711 8.25 12ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </a>
+                    </td>
+                    </tr>
+                    {%endfor%} 
+                </tbody>
+            </table>
+</div>
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        $('#leave').DataTable({
+           "searching": false
+
+            
+        });
+       
+        
+    });
+</script>
+{% endblock javascript %}
+
+{% endblock content %}

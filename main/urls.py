@@ -40,8 +40,9 @@ urlpatterns = [
     path('get_realtime_data/courseId=<int:course_id>/', views.get_realtime_data, name='get-realtime-data'),
     path('update-status/', views.update_status, name='update-status'),
     path('studentUploadImages/',views.studentUploadImages,name='student-images'),
-    
-    
+    path('leaveApplication/<int:attendance_id>/',views.leaveApplication,name='leave-application'),
+    path('approveLeave/<int:leave_id>/',views.leaveApproval,name= 'approve-leave'),
+    path('leaveList/',views.leaveList,name='leave-list'),
     
     path('upload',files.upload_file),
     path('train',files.train_file,name="train"),
@@ -51,5 +52,4 @@ urlpatterns = [
     path('detect/<name>/',files.detect,name="detect"),
 
     path('populate_attendance/',files.populate_attendance)
-]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

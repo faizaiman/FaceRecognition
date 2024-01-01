@@ -5,14 +5,15 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
-from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm,DatasetImageForm
-from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance,DatasetImages
-from django.db.models import Count,F,ExpressionWrapper, fields
+from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm,DatasetImageForm,LeaveForm, LeaveApprovalForm
+from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance,DatasetImages,Leave
+from django.db.models import Count,F,ExpressionWrapper, fields,Exists,OuterRef
 from django.db.models.functions import TruncMonth,TruncDate
 from django.views.decorators.http import require_POST
 from datetime import datetime,timedelta
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+
 import pytz
 
 # def handle500(request, *args, **argv):
@@ -537,9 +538,24 @@ def studentStatistic(request,course_id):
     # Get class info from course id
     class_info = Course.objects.values('course_code', 'course_name', 'lecturer__first_name', 'lecturer__last_name').get(id=course_id)
 
+    leave_check = Leave.objects.filter(
+        attendance_id=OuterRef('pk'),
+        status__in=['pending', 'approve']
+    )
     # get attendance session by course
-    attend_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date', 'course__timetable__DayOfTheWeek', 'course__timetable__StartTime', 'course__timetable__EndTime', 'status').order_by('date')
-
+    attend_sessions = attendance_entries.annotate(
+            date=TruncDate('timestamp'),
+            has_leave_application=Exists(leave_check)
+        ).values(
+            'date', 
+            'course__timetable__DayOfTheWeek', 
+            'course__timetable__StartTime', 
+            'course__timetable__EndTime', 
+            'status',
+            'id', 
+            'has_leave_application'
+        ).order_by('date')    
+    # dd(has_leave_application)
     context = {
         'class_info': class_info,
         'total_session': total_session,
@@ -550,9 +566,62 @@ def studentStatistic(request,course_id):
 
     return render(request,'student/attendanceStatistic.html',context)
 
+
+def leaveApplication(request,attendance_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    attendance =  get_object_or_404(Attendance,id=attendance_id)
+    course = attendance.course
+    form = LeaveForm()
+    if  request.method =='POST':
+        form = LeaveForm(request.POST,request.FILES)
+        if form.is_valid():
+            leave_application =  form.save(commit=False)
+            leave_application.attendance = attendance
+            leave_application.save()
+            return redirect(index)
+        
+        else:
+            form = LeaveForm()
+        
+    return render(request,'student/leaveApplication.html',{'form':form,'attendance':attendance,'course':course})
+
+def leaveList(request):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    
+    current_user  = request.user
+    
+    lecturer_course = current_user.lecturer.course_set.all()
+    leaves  = Leave.objects.filter(attendance__course__in=lecturer_course)
+    return render(request,'lecturer/leaveList.html',{'leaves':leaves})
+
+def leaveApproval(request,leave_id):
+    if not request.user.is_authenticated:
+        return redirect(login)
+    leave  = get_object_or_404(Leave,id=leave_id)
+    form = LeaveApprovalForm(instance=leave)
+    document_url = leave.document
+    
+    if request.method ==  'POST':
+        form = LeaveApprovalForm(request.POST,instance=leave)
+        if form.is_valid():
+            form.save()
+            if leave.leave_type == 'mc':
+                leave.attendance.status = 'mc'
+            elif leave.leave_type == 'el':
+                leave.attendance.status = 'el'
+            leave.attendance.save()
+            return redirect(index)
+        else:
+            form = LeaveApprovalForm(instance=leave)
+    return render(request,'lecturer/approveLeave.html',{'form':form,'leave':leave,'document_url':document_url})
+
+
 def takingAttendance(request,course_id):
     if not request.user.is_authenticated:
-        return redirect('login')  
+        return redirect(login)  
     
     local_timezone = pytz.timezone('Asia/Kuala_Lumpur')
 
@@ -732,3 +801,5 @@ def studentUploadImages(request):
 
         
     return render(request,'student/studentImages.html',{'form':form})
+
+

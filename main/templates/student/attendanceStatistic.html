@@ -81,7 +81,15 @@
                         <td>{{session.date|date:"d/m/Y"}}</td>
                         <td>{{session.course__timetable__StartTime}}</td>
                         <td>{{session.course__timetable__EndTime}}</td>
-                        <td>{{session.status}}</td>
+                        <td>{{session.status}} 
+                            {% if session.status == "absent" %}
+                                {% if not session.has_leave_application %}
+                                    | <a href="{% url 'leave-application' session.id %}">Apply for leave</a>
+                                {% else %}
+                                    | Already applied for leave
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                     {%endfor%}
                 </tbody>

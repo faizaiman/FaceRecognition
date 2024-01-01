@@ -31,13 +31,9 @@
 
 
                         {%if request.user.profile_picture == 'default_avatar.png'  %}
-                                <img class="w-24 h-24 rounded-full object-cover  mb-5"  src="{% static 'assets/images/' %}{{ user.profile_picture }}" alt="image" />                                       
-                            {% elif request.user.profile_picture.url  is None%}
-                                <img src=" {{ user.profile_picture.url }}" alt="image"  class="w-24 h-24 rounded-full object-cover  mb-5"  />
-                            {% else %}
-                            <img class="w-24 h-24 rounded-full object-cover  mb-5" src="{% static 'assets/images/profile_images/default_avatar.png' %}" alt="image" />                                       
-                            {% comment %} <img src="{{ user.profile_picture.url|default:'assets/images/profile_images/default_avatar.png' }}" alt="User Profile Picture" class="w-9 h-9 rounded-full object-cover saturate-50 group-hover:saturate-100" /> {% endcomment %}
-
+                        <img src="{% static 'assets/images/default_avatar.png' %}" alt="image" class="w-24 h-24 rounded-full object-cover  mb-5" />
+                           {% elif request.user.profile_picture.url != 'default_avatar.png' %}
+                           <img src="{{ user.profile_picture.url }}"alt="image" class="w-24 h-24 rounded-full object-cover  mb-5" />
                             {% endif %}
                        <a href="{% url 'upload-image'%} ">
                         

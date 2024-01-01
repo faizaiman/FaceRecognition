@@ -1,0 +1,73 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
+<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
+ {% endcomment %}
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
+
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Leave Application</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">Leave Application</h5>
+        <div class="table-responsive" >
+            <table>
+                
+                <tr>
+                    <td width="20%" align="right">Course</td>
+                    <td width="4%" align="center">:</td>
+                    <td>{{ course.course_code}}-{{course.course_name}}</td>
+
+                </tr>
+                <tr>
+                    <td width="20%" align="right">Class Sessions</td>
+                    <td width="4%" align="center">:</td>
+                    <td>{{ attendance.timestamp|date:"d/m/Y"}}</td>
+
+                </tr>
+                <tr>
+                    <td width="20%" align="right">Attendance Status</td>
+                    <td width="4%" align="center">:</td>
+                    <td>{{attendance.status}}</td>
+                </tr>
+            </table>
+            <br>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+                <label for="gridLeave">Leave Type</label>
+                <select name="leave_type" id="leave_type" class="form-select text-white-dark" > 
+                    <option>Select Leave Type</option> 
+                    <option value="mc">Medical Leave</option>
+                    <option value="el">Exemption Letter</option>
+                </select>     
+            </div>
+            <br>
+            <div class="mb-5">
+                <label for="fridDocument">Attach supporting document</label>
+                <input  type="file" name="document"  accept="image/jpeg, image/png, application/pdf"/>
+            </div>
+            <button type="submit" class="btn btn-primary !mt-6">Update</button>
+
+        </form>
+    </div>
+</div>
+{% endblock content %}

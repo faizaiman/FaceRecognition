@@ -3,7 +3,7 @@ from django.db import transaction
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm, UserChangeForm
 from django.contrib.auth.models import User
 from .models import Profile
-from main.models import User, Profile,Student,Lecturer,Course,Timetable, DatasetImages
+from main.models import User, Profile,Student,Lecturer,Course,Timetable, DatasetImages, Leave
 from django.forms import ModelForm
 
 
@@ -146,3 +146,14 @@ class DatasetImageForm(forms.ModelForm):
     class Meta:
         model= DatasetImages
         fields = ['image']
+        
+
+class LeaveForm(forms.ModelForm):
+    class Meta:
+        model = Leave
+        fields= ['leave_type','document']
+        
+class LeaveApprovalForm(forms.ModelForm):
+    class Meta: 
+        model = Leave
+        fields= ['status']

@@ -93,7 +93,6 @@ DATABASES = {
         # 'USER': 'root',
         # 'PASSWORD': '',
         # 'PORT': '3306'
-        
         #for macbook
         'ENGINE':'django.db.backends.postgresql_psycopg2',
         'NAME': 'ftends',
@@ -140,11 +139,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
 MEDIA_URL = 'face_trainer/dataset/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'face_trainer/')
 
-
+MEDIA_URL2= 'face_trainer/leaves_document/'
+MEDIA_ROOT_2 = os.path.join(BASE_DIR,'face_trainer/')
 
 
 # Default primary key field type

@@ -1,0 +1,68 @@
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
+<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
+ {% endcomment %}
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
+
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Approve Leave</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">       
+        <h5 class="font-semibold text-lg dark:text-white-light">Approve Leave Application</h5>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label for="gridFirstName">Student Name</label>
+                <input name="first_name" id="disInput" type="text"  value="{{leave.attendance.student.first_name}} {{leave.attendance.student.last_name}}" class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed" readOnly/>
+            </div>
+            <div>
+                <label for="gridFirstName">Course</label>
+                <input name="first_name" id="disInput" type="text"  value="{{leave.attendance.course.course_code}} {{leave.attendance.course.course_name}}" class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed" readOnly/>
+            </div>
+            <div>
+                <label for="gridFirstName">Type of Leave:</label>
+                <input name="leave_type" id="disInput" type="text"  value="{{leave.leave_type}}" class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed" readOnly/>
+            </div>
+            
+            <div>
+                <label for="gridFirstName">Leave Status</label>
+                <input name="leave_status" id="disInput" type="text"  value="{{leave.status}}" class="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed" readOnly/>
+            </div>
+            <div>
+                <label for="gridFirstName">Document</label>
+                <a href="{{ leave.document.url }}" target="_blank">View Document Supported Document</a>
+            </div>
+            <div>
+                <label for="gridLeave">Update Status</label>
+                <select name="status" id="status" class="form-select text-white-dark" > 
+                    <option>Select Leave Status</option> 
+                    <option value="approve">Approve</option>
+                    <option value="reject">Reject</option>
+                </select>     
+            </div>
+            <button type="submit" class="btn btn-primary !mt-6">Submit</button>
+
+        </form>
+    </div>
+</div>
+{% endblock content %}

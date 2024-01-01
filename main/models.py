@@ -81,6 +81,30 @@ class Attendance(models.Model):
     course = models.ForeignKey(Course,on_delete=models.CASCADE)
     status = models.CharField(max_length=100, default="absent")
 
+class Leave(models.Model):
+    attendance= models.OneToOneField(Attendance,on_delete=models.CASCADE)
+    leave_type = models.CharField(max_length =100)
+    document = models.FileField(upload_to='leaves_document',null=True,blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=100,default= "pending")
+    
+    def __str__(self):
+        return f"{self.attendance.student.user.username} - {self.attendance.course.course_name} - {self.status}"
+    
+    def approve(self):
+        if self.status == 'pending':
+            self.status  = 'approve'
+            if self.leave_type == 'mc':
+                self.attendance.status  ='mc'
+            elif self.leave_type == 'el':
+                self.attendance.status = 'el'
+            self.attendance.save()
+            self.save()
+    
+    def reject(self):
+        if self.status == 'pending':
+            self.status='reject'
+            self.save()
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
