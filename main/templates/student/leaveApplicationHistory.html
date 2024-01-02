@@ -1,0 +1,84 @@
+
+{% extends 'components/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" /> {% endcomment %}
+{% comment %} <link defer rel='stylesheet' type='text/css'  href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" />
+<link defer rel='stylesheet' type='text/css'  href="https://cdn.datatables.net/1.13.4/css/dataTables.semanticui.min.css" />
+ {% endcomment %}
+ 
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+{% comment %} <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"></script> {% endcomment %}
+
+
+
+
+    <ul class="flex space-x-2 rtl:space-x-reverse">
+        <li>
+            <a href="javascript:;" class="text-primary hover:underline">Dashboard</a>
+        </li>
+        <li class="before:content-['/'] ltr:before:mr-1 rtl:before:ml-1">
+            <span>Attendance</span>
+        </li>
+    </ul>
+    <br>
+    <div class="panel">
+        <h5 class="font-semibold text-lg dark:text-white-light">Leave Application History</h5>
+            <table id="leave" class="table-hover ">
+                <thead >
+                    <tr>
+                        <th>#</th>
+                        <th>Course</th>
+                        <th>Date of Leave</th>
+                        <th>Status</th>
+                        <th>Document</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{ leave.attendance.course.course_name }}</td>
+                        <td>{{ leave.attendance.timestamp|date:"d-m-Y" }}</td>
+                        <td>
+                            {% if leave.status == 'pending' %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% elif leave.status == 'reject' %}
+                            <span class="badge bg-danger">Reject</span>
+                        {% elif leave.status == 'approve' %}
+                            <span class="badge bg-success">Approve</span>
+                        {% endif %}
+                        </td>
+                        <td>
+                            {% if leave.document %}
+                            <a href="{{ leave.document.url }}" target="_blank">View Document</a>
+                            {% else %}
+                            No Document
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+</div>
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        $('#leave').DataTable({
+           "searching": false
+
+            
+        });
+       
+        
+    });
+</script>
+{% endblock javascript %}
+
+{% endblock content %}

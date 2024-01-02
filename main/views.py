@@ -7,13 +7,12 @@ from django.views.generic import CreateView
 from django.contrib.auth import views as auth_views,get_user_model
 from .forms import StudentSignUpForm,LecturerSignUpForm,LoginForm,addCourseForm,editUserProfile,UploadImage,addTimetableForm,DatasetImageForm,LeaveForm, LeaveApprovalForm
 from .models import Lecturer,Course,Student,Enrollment,Timetable,Attendance,DatasetImages,Leave
-from django.db.models import Count,F,ExpressionWrapper, fields,Exists,OuterRef
+from django.db.models import Count,F,ExpressionWrapper, fields,Exists,OuterRef,Q
 from django.db.models.functions import TruncMonth,TruncDate
 from django.views.decorators.http import require_POST
 from datetime import datetime,timedelta
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-
 import pytz
 
 # def handle500(request, *args, **argv):
@@ -487,23 +486,25 @@ def studentAttendance(request):
     if not request.user.is_authenticated:
         return redirect('login')  
 
-   
+    # Retrieve the student associated with the user
+    student = get_object_or_404(Student, user=request.user)
+
     # Retrieve the courses in which the student is enrolled
-    enrolled_courses = Course.objects.filter(enrollment__student__user=request.user)
+    enrolled_courses = Course.objects.filter(enrollment__student=student)
 
     # Retrieve timetable and attendance information for each enrolled course
     attendance_info = []
     
     for course in enrolled_courses:
         timetable_entries = Timetable.objects.filter(course=course).select_related('lecturer')
-        attendance_entries = Attendance.objects.filter(student__user=request.user, course=course)
+        attendance_entries = Attendance.objects.filter(student=student, course=course)
 
         total_sessions = attendance_entries.annotate(date=TruncDate('timestamp')).values('date').distinct().count()
-
-        present_sessions = attendance_entries.filter(status='present').count()
-        absent_sessions = total_sessions - present_sessions
+        attended_sessions = attendance_entries.filter(status='present').count()
+        absent_sessions = attendance_entries.filter(status='absent').count()
+        
         absent_percentage = (absent_sessions / total_sessions) * 100 if total_sessions > 0 else 0
-        attended_percentage = (present_sessions / total_sessions) * 100 if total_sessions > 0 else 0
+        attended_percentage = (attended_sessions / total_sessions) * 100 if total_sessions > 0 else 0
 
         attendance_info.append({
             'course': course,
@@ -512,10 +513,10 @@ def studentAttendance(request):
             'absent_percentage': round(absent_percentage, 2),
             'attended_percentage': round(attended_percentage, 2),
             'total_sessions': total_sessions,
+            'absent_sessions': absent_sessions
         })
 
- 
-    return render(request,'student/studentAttendance.html', {'attendance_info': attendance_info})
+    return render(request, 'student/studentAttendance.html', {'attendance_info': attendance_info})
 
 
 def studentStatistic(request,course_id):
@@ -567,26 +568,38 @@ def studentStatistic(request,course_id):
     return render(request,'student/attendanceStatistic.html',context)
 
 
-def leaveApplication(request,attendance_id):
+def leaveApplicationHistory(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    
-    attendance =  get_object_or_404(Attendance,id=attendance_id)
-    course = attendance.course
-    form = LeaveForm()
-    if  request.method =='POST':
-        form = LeaveForm(request.POST,request.FILES)
-        if form.is_valid():
-            leave_application =  form.save(commit=False)
-            leave_application.attendance = attendance
-            leave_application.save()
-            return redirect(index)
-        
-        else:
-            form = LeaveForm()
-        
-    return render(request,'student/leaveApplication.html',{'form':form,'attendance':attendance,'course':course})
 
+    current_student = get_object_or_404(Student, user=request.user)
+
+    leaves = Leave.objects.filter(attendance__student=current_student)
+
+    return render(request, 'student/leaveApplicationHistory.html', {'leaves': leaves})
+
+def leaveApplication(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    student = get_object_or_404(Student, user=request.user)
+    absent_attendances = Attendance.objects.filter(Q(student=student) & Q(status='absent') & ~Q(leave__isnull=False))    
+    form = LeaveForm()
+    if request.method == 'POST':
+        form = LeaveForm(request.POST, request.FILES)
+        print(form)
+        if form.is_valid():
+            leave_application = form.save(commit=False)
+            attendance_id = request.POST.get('attendance_id')
+            selected_attendance = get_object_or_404(Attendance, id=attendance_id)
+            leave_application.attendance = selected_attendance
+            leave_application.save()
+            return redirect(leaveApplicationHistory)  
+    else:
+        form = LeaveForm()
+
+    return render(request, 'student/leaveApplication.html', {'form': form,'attendances': absent_attendances})
+    
 def leaveList(request):
     if not request.user.is_authenticated:
         return redirect(login)
@@ -596,6 +609,7 @@ def leaveList(request):
     lecturer_course = current_user.lecturer.course_set.all()
     leaves  = Leave.objects.filter(attendance__course__in=lecturer_course)
     return render(request,'lecturer/leaveList.html',{'leaves':leaves})
+
 
 def leaveApproval(request,leave_id):
     if not request.user.is_authenticated:
@@ -613,7 +627,7 @@ def leaveApproval(request,leave_id):
             elif leave.leave_type == 'el':
                 leave.attendance.status = 'el'
             leave.attendance.save()
-            return redirect(index)
+            return redirect(leaveList)
         else:
             form = LeaveApprovalForm(instance=leave)
     return render(request,'lecturer/approveLeave.html',{'form':form,'leave':leave,'document_url':document_url})

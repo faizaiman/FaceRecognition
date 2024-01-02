@@ -34,10 +34,14 @@
 <div class="panel">
     <form id ="form" class="border border-[#ebedf2] dark:border-[#191e3a] rounded-md p-4 mb-5 bg-white dark:bg-[#0e1726]" method="POST" enctype="multipart/form-data" >
         {% csrf_token %}
-        
-            <div class="mb-5">
-                <input  type="file" name="image" data-upload-id="profile_picture" accept="image/jpeg, image/png" multiple/>
-            </div>
+        <div class="mb-5">
+            <label for="fridDocument">Attach a image</label>
+            <input id="ctnFile" type="file" name="image" accept="image/jpeg, image/png" class="form-input file:py-2 file:px-4 file:border-0 file:font-semibold p-0 file:bg-primary/90 ltr:file:mr-5 rtl:file:ml-5 file:text-white file:hover:bg-primary" multiple />
+
+        </div>
+            {% comment %} <div class="mb-5">
+                <input  type="file" name="image"  accept="image/jpeg, image/png" multiple/>
+            </div> {% endcomment %}
         <button type="submit" class="btn btn-primary !mt-6">Upload</button>
 
     </form>

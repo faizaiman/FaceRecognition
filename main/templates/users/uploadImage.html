@@ -2,9 +2,6 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'assets/css/file-upload-with-preview.min.css' %}" />
-<script src="{% static 'assets/js/file-upload-with-preview.iife.js' %}"></script>
-<script src="https://unpkg.com/file-upload-with-preview/dist/file-upload-with-preview.iife.js"></script>
 
 <ul class="flex space-x-2 rtl:space-x-reverse">
     <li>
@@ -15,29 +12,22 @@
     </li>
 </ul>
 <br>
+
 <div class="panel">
     <form id ="form"class="border border-[#ebedf2] dark:border-[#191e3a] rounded-md p-4 mb-5 bg-white dark:bg-[#0e1726]" method="POST" enctype="multipart/form-data" >
         {% csrf_token %}
         
-            <div class="mb-5">
-                {% comment %} <div class="custom-file-container" name="profile_picture" id="profile_picture" type="file" data-upload-id="profile_picture" accept="image/*" ></div> {% endcomment %}
-                <input class="custom-file-container"  type="file" name="profile_picture" data-upload-id="profile_picture" accept="image/jpeg, image/png" multiple/>
-            </div>
+        <div class="mb-5">
+            <label for="fridDocument">Attach a image</label>
+            <input id="ctnFile" type="file" name="profile_picture" accept="image/jpeg, image/png" class="form-input file:py-2 file:px-4 file:border-0 file:font-semibold p-0 file:bg-primary/90 ltr:file:mr-5 rtl:file:ml-5 file:text-white file:hover:bg-primary" required />
+
+        </div>
         <button type="submit" class="btn btn-primary !mt-6">Upload</button>
 
     </form>
 </div>
 
 
-
-<script>
-    new FileUploadWithPreview.FileUploadWithPreview('profile_picture', {
-        images: {
-            baseImage: "{% static 'assets/images/file-preview.svg' %}",
-            backgroundImage: '',
-        },
-    });
-</script>
 
 {% endblock %}
 

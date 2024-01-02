@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block content %}
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
 <div x-data="subject">
     <ul class="flex space-x-2 rtl:space-x-reverse">
@@ -15,9 +17,10 @@
 </div>
 <div class="panel">
     <h5 class="font-semibold text-lg dark:text-white-light">Course</h5>
-    <table id="tlect" class="table-hover">
+    <table id="rcourse" class="table-hover">
         <thead>
             <tr>
+                <th>#</th>
                 <th>Course Code</th>
                 <th>Course Name</th>
                 <th>Credit Hours</th>
@@ -28,6 +31,7 @@
                 {%for course in cours%}
                   
                     <tr>
+                        <td>{{forloop.counter}}</td>
                         <td>{{course.course_code}}</td>
                         <td>{{course.course_name}}</td>
                         <td>{{course.credit_hours}}</td>
@@ -44,5 +48,18 @@
         </tbody>
     </table>
 </div>
+{% block javascript %}
+<script>
+    $(document).ready(function(){
+        $('#rcourse').DataTable({
+           "searching": false
+
+            
+        });
+       
+        
+    });
+</script>
+{% endblock javascript %}
 
 {% endblock %}

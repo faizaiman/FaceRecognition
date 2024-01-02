@@ -24,10 +24,10 @@
     <br>
     <div class="panel">
         <h5 class="font-semibold text-lg dark:text-white-light">My Subject</h5>
-            <table id="tlect" class="table-hover ">
+            <table id="course" class="table-hover ">
                     <thead>
                         <tr>
-                          
+                            <th>#</th>
                             <th>Course Code</th>
                             <th>Course Name</th>
                             <th>Credit Hours</th>
@@ -39,7 +39,7 @@
                         
                         {% for enrollment in enn %}
                             <tr>
-                              
+                                <td>{{forloop.counter}}</td>
                                 <td>{{enrollment.course.course_code}}</td>
                                 <td>{{enrollment.course.course_name}}</td>
                                 <td>{{enrollment.course.credit_hours}}</td>
@@ -61,7 +61,7 @@
 {% block javascript %}
 <script>
     $(document).ready(function(){
-        $('#tlect').DataTable({
+        $('#course').DataTable({
            "searching": false
 
             

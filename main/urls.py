@@ -40,7 +40,8 @@ urlpatterns = [
     path('get_realtime_data/courseId=<int:course_id>/', views.get_realtime_data, name='get-realtime-data'),
     path('update-status/', views.update_status, name='update-status'),
     path('studentUploadImages/',views.studentUploadImages,name='student-images'),
-    path('leaveApplication/<int:attendance_id>/',views.leaveApplication,name='leave-application'),
+    path('leaveApplication/',views.leaveApplication,name='leave-application'),
+    path('leaveApplicationHistory/',views.leaveApplicationHistory),
     path('approveLeave/<int:leave_id>/',views.leaveApproval,name= 'approve-leave'),
     path('leaveList/',views.leaveList,name='leave-list'),
     
