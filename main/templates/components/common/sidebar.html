@@ -59,10 +59,10 @@
                     </button>
                     <ul x-cloak x-show="activeDropdown === 'lecturer'" x-collapse class="sub-menu text-gray-500">
                         <li>
-                            <a href="/lecturer">View Lecturer</a>
+                            <a href={% url 'lecturer' %}>View Lecturer</a>
                         </li>
                         <li>
-                            <a href="/addLecturer">Add Lecturer</a>
+                            <a href={% url 'addLecturer' %}>Add Lecturer</a>
                         </li>
                      
                     </ul>
@@ -96,10 +96,10 @@
                     </button>
                     <ul x-cloak x-show="activeDropdown === 'course'" x-collapse class="sub-menu text-gray-500">
                         <li>
-                            <a href="/course">View Course</a>
+                            <a href={% url 'course' %}>View Course</a>
                         </li>
                         <li>
-                            <a href="/addCourse">Add Course</a>
+                            <a href={% url 'add-course' %}>Add Course</a>
                         </li>
                      
                     </ul>
@@ -139,10 +139,10 @@
                     </button>
                     <ul x-cloak x-show="activeDropdown === 'timetable'" x-collapse class="sub-menu text-gray-500">
                         <li>
-                            <a href="/viewTimetable">View Timetable</a>
+                            <a href={% url 'viewTimetable' %}>View Timetable</a>
                         </li>
                         <li>
-                            <a href="addTimetable">Add Timetable</a>
+                            <a href={% url 'addTimetable' %}>Add Timetable</a>
                         </li>
                      
                     </ul>
@@ -204,11 +204,11 @@
                   <ul x-cloak x-show="activeDropdown === 'subject'" x-collapse class="sub-menu text-gray-500">
                      
                         <li>
-                            <a href="/MySubject">My Subject </a>
+                            <a href={% url 'mysubject' %}>My Subject </a>
                         </li>
                       
                       <li>
-                          <a href="/viewSubject">Register Course</a>
+                          <a href={% url 'viewsubject' %}>Register Course</a>
                       </li>
                    
                   </ul>
@@ -249,17 +249,18 @@
                   <ul x-cloak x-show="activeDropdown === 'lecturer'" x-collapse class="sub-menu text-gray-500">
                         {% if request.user.is_lecturer %}  
                         <li>
-                            <a href="/viewClass">View Class</a>
+                            <a href={% url 'viewClass' %}>View Class</a>
                         </li>
                         
                         
                         <li>
-                            <a href="/viewAttendance">Class Attendance</a>
+                            <a href={% url 'viewAttendance' %}>Class Attendance</a>
                         </li>
+                        
                         {% endif%}
                         {% if request.user.is_student %}  
                       <li>
-                          <a href="/studentAttendance">My Attendance</a>
+                          <a href={% url 'student-attendance' %}>My Attendance</a>
                       </li>
                       {% endif%}
                   </ul>
@@ -293,15 +294,15 @@
                     {% if request.user.is_lecturer %}  
 
                         <li>
-                            <a href="/leaveList">Leave List</a>
+                            <a href={% url 'leave-list' %}>Leave List</a>
                         </li>
                     {%endif%}
                     {% if request.user.is_student %}  
                         <li>
-                            <a href="/leaveApplication">Apply Leave</a>
+                            <a href={% url 'leave-application' %}>Apply Leave</a>
                         </li>
                         <li>
-                            <a href="/leaveApplicationHistory">Leave Application History</a>
+                            <a href={% url 'leaveApplicationHistory' %}>Leave Application History</a>
                         </li>
                         {%endif%}
                     </ul>
@@ -336,7 +337,7 @@
                   </button>
                   <ul x-cloak x-show="activeDropdown === 'uploadImages'" x-collapse class="sub-menu text-gray-500"> 
                         <li>
-                            <a href="/studentUploadImages">Upload Images</a>
+                            <a href={% url 'student-images' %}>Upload Images</a>
                         </li>
                     </ul>
               </li>

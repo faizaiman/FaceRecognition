@@ -95,7 +95,7 @@ DATABASES = {
         # 'PORT': '3306'
         #for macbook
         'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ftends',
+        'NAME': 'ftend',
         'USER': 'postgres',
         'PASSWORD': 'admin',
         'HOST':'localhost',

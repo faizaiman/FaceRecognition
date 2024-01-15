@@ -39,7 +39,7 @@
             <select name="lecturer_id" id="lecturer_id" class="form-select text-white-dark" >
                 <option>Select Lecturer</option>
                 {% for lect in lects %}
-                <option value="{{lect.id}}">{{lect.username}}</option>
+                <option value="{{lect.id}}">{{lect.first_name}} {{lect.last_name}}</option>
 
                 {%endfor%}
             </select>

@@ -26,10 +26,7 @@
         </li>
     </ul>
     <br>
-    <button type="button" class="btn btn-info rounded-full btn-sm" onClick="javascript:stop();">
-                              
-        stop            
-    </button>
+  
     <div class="panel">
         <h5 class="font-semibold text-lg dark:text-white-light">Class</h5>
             <table id="tlect" class="table-hover ">
@@ -54,7 +51,6 @@
         
                     </td>
                     <td>
-                        <a href="#">
 
                             <button type="button" class="btn btn-info rounded-full btn-sm" onClick="javascript:takeAttendance('{{tbs.course.id}}');">
                               
@@ -66,7 +62,7 @@
                                     Take Attendance
                                     
                             </button>
-                        </a>
+                        
 
                     </td>
                     </tr>
@@ -126,24 +122,7 @@
         })
     }
 
-    {% comment %} function openPage(courseId){
-        var encodeCourseId = encodeURIComponent(courseId);
-        var urls = "/takingAttendance/courseId=" + encodeCourseId + "/";
-        return new Promise(function(resolve,reject){
-            $.ajax({
 
-                type:"GET",
-                url: "/takingAttendance/courseId="+courseId+"/",
-                success:function(result){
-                    resolve(result);
-                },
-                error: function(error){
-                    reject(error)
-                }
-
-            });
-        })
-    } {% endcomment %}
 
     async function takeAttendance(courseId){
         console.log('Button click takeAttendance',courseId)

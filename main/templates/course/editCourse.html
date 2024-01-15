@@ -39,7 +39,7 @@
                 <option>Select Lecturer</option>
                 
                 {% for lect in lects %}
-                <option value="{{ lect.id }}"{% if lect.id == course.lecturer_id %} selected="selected"{% endif %}>{{ lect.username }}</option>
+                <option value="{{ lect.id }}"{% if lect.id == course.lecturer_id %} selected="selected"{% endif %}>{{ lect.first_name }} {{ lect.last_name }}</option>
                 {% comment %} <option value="{{lect.id}}"{% if lect.id == course.id%}>{{lect.username}}</option> {% endcomment %}
                 {%endfor%}
             </select>

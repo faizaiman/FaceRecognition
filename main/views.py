@@ -197,7 +197,7 @@ def addCourse(request):
             credit_hours= request.POST['credit_hours'] #get credit hours from post
             lecturer_id = request.POST['lecturer_id'] #get selected lecturer from post 
             Course(course_code=course_code,course_name=course_name,credit_hours=credit_hours,lecturer_id=lecturer_id).save()
-            messages.success(request,f'Course has been added')
+            messages.success(request,f'Sucessfull add course')
             return redirect(viewCourse)
 
         else:
@@ -247,11 +247,10 @@ def addTimetable(request):
             Timetable(DayOfTheWeek=DayOfTheWeek,StartTime=StartTime,EndTime=EndTime,lecturer_id=lecturer_id,course_id=course_id).save()
             # dd(lecturer_id)
             print (form)
-            messages.success(request,f'Timetable has been created')
+            messages.success(request,f'Successful add new Timetable')
             return redirect(viewTimetable) 
         else:
             print(form)
-            messages.warning(request,f'Fail to add Timetable')
             form = addTimetableForm()
     return render (request,'timetable/addTimetable.html',{'form':addTimetableForm(),'course':courses})
 #end of addTimeTable
@@ -273,7 +272,7 @@ def editTimetable(request,id):
         lct_id = Course.objects.filter(id=timetable.course_id).values_list('lecturer_id',flat=True) #get lecturer id from course table 
         timetable.lecturer_id = lct_id
         timetable.save()      
-        messages.success(request,f'Timetable has been updated')
+        messages.success(request,f'Sucessfull update timetable')
         return redirect(viewTimetable)
 
     else:
@@ -299,7 +298,7 @@ def editCourse(request,id):
         course.credit_hours= request.POST['credit_hours']
         course.lecturer_id = request.POST['lecturer_id']
         course.save()
-        messages.success(request,f'Course has been updated')
+        messages.success(request,f'Sucessful update course')
         return redirect(viewCourse)
     else:
        
@@ -342,6 +341,7 @@ def editLecturer(request,id):
         return redirect(viewLecturer)
     else:
         print(form)
+        messages.success(request,f'Unsuccessful update lecturer')
         form = editUserProfile(request.POST or None, instance=getUserLecturer)
 
     return render(request,"lecturer/editLecturer.html",{'lect':getUserLecturer})
@@ -351,6 +351,7 @@ def editLecturer(request,id):
 def deleteLecturer(request,id):
     lecturer = get_user_model().objects.select_related('lecturer').get(pk=id) #get user id from table main_user and join table main_lecturer
     lecturer.delete()
+    messages.success(request,f'successful delete lecturer')
     return redirect(viewLecturer)
 # end of delete lecturer
 
@@ -384,7 +385,7 @@ def registerSubject(request,id,uid):
     enrollment.course_id = course.id 
     enrollment.student_id = getUserStudent.user_id
     enrollment.save()
-    
+    messages.success(request,f'successful register subject')
     return redirect(mySubject)
 # end of Student Register Subject 
 
@@ -392,6 +393,8 @@ def registerSubject(request,id,uid):
 def dropSubject(request,id):
     enroll = get_object_or_404(Enrollment,id=id)
     enroll.delete()
+    messages.success(request,f'successful drop subject')
+
     return redirect(mySubject)
 # end of student drop subject
 
@@ -594,6 +597,7 @@ def leaveApplication(request):
             selected_attendance = get_object_or_404(Attendance, id=attendance_id)
             leave_application.attendance = selected_attendance
             leave_application.save()
+            messages.success(request,f'successful apply for leave')
             return redirect(leaveApplicationHistory)  
     else:
         form = LeaveForm()
@@ -627,9 +631,11 @@ def leaveApproval(request,leave_id):
             elif leave.leave_type == 'el':
                 leave.attendance.status = 'el'
             leave.attendance.save()
+            messages.success(request,f'successful update leave application')
             return redirect(leaveList)
         else:
             form = LeaveApprovalForm(instance=leave)
+
     return render(request,'lecturer/approveLeave.html',{'form':form,'leave':leave,'document_url':document_url})
 
 
@@ -775,6 +781,7 @@ def uploadImage(request):
                 image=form.cleaned_data['profile_picture']
                 print(form)
                 currentUser.save()
+                messages.success(request,f'successful upload image')
                 return redirect(profile)
         else:
             print(form)

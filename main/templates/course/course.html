@@ -38,7 +38,7 @@
                         <td>{{course.course_code}}</td>
                         <td>{{course.course_name}}</td>
                         <td>{{course.credit_hours}}</td>
-                        <td>{{course.lecturer.first_name}}</td>
+                        <td>{{course.lecturer.first_name}} {{course.lecturer.last_name}}</td>
                         <td>
                         <a href="{% url 'edit-course' course.id%}">
                             <button type="button" class="btn btn-warning rounded-full btn-sm" >

@@ -4,6 +4,7 @@ from datetime import datetime,timedelta
 from django.utils import timezone
 import pytz
 import requests
+from django.contrib import messages
 
 # https://stackoverflow.com/questions/22567306/how-to-upload-file-with-python-requests
 
@@ -33,7 +34,6 @@ def recognize(request):
         return JsonResponse({'ok':'true', 'status':'200'})
 
 def detect(request,name):
-    #todo: change the detect time to local time GMT+8
     course_id = request.GET.get('courseId', '')
     print("DETECT FACE")
     print(name, course_id)
